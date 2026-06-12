@@ -1,0 +1,13 @@
+.DS_Store
+*.mov
+*.mp4
+*.psd
+*.psb
+
+ART/
+TAKAHASHI LAB インスタ投稿用/
+assets/web/movie/
+
+node_modules/
+.env
+assets/web/works/

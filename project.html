@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>YOUR PROJECT — TAKAHASHI LAB.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0a0a0a; --fg:#efefef; --dim:#4a4a4a; --hair:rgba(255,255,255,.08);
+      --pad:clamp(1.2rem,4vw,4rem);
+    }
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--fg);font-family:'Inter',sans-serif;
+         font-weight:300;line-height:1.6;min-height:100vh;cursor:none}
+
+    /* ── Custom cursor ───────────────────────────── */
+    #cd{position:fixed;top:0;left:0;width:32px;height:32px;
+        border-radius:50%;border:1px solid rgba(255,255,255,.55);
+        pointer-events:none;z-index:99999;
+        transform:translate(-50%,-50%);transition:transform .08s,opacity .2s;opacity:0}
+    body:hover #cd{opacity:1}
+
+    /* ── Nav ─────────────────────────────────────── */
+    .nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;
+         justify-content:space-between;padding:1.4rem var(--pad);
+         background:rgba(10,10,10,.88);backdrop-filter:blur(12px);
+         border-bottom:1px solid var(--hair)}
+    .nav-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+              font-size:.9rem;letter-spacing:.22em;text-transform:uppercase;
+              color:var(--fg);text-decoration:none}
+    .nav-back{display:flex;align-items:center;gap:.5rem;
+              font-size:.54rem;letter-spacing:.3em;text-transform:uppercase;
+              color:var(--dim);text-decoration:none;transition:color .2s;cursor:none}
+    .nav-back:hover{color:var(--fg)}
+    .nav-back::before{content:'←';font-size:.8rem;letter-spacing:0}
+    .lang-btn{font-size:.5rem;letter-spacing:.28em;text-transform:uppercase;
+              color:var(--fg);background:none;border:1px solid var(--hair);
+              padding:.3rem .55rem;cursor:none;transition:border-color .2s}
+    .lang-btn:hover{border-color:rgba(255,255,255,.3)}
+
+    /* ── Header ─────────────────────────────────── */
+    .cat-hd{padding:4rem var(--pad) 3rem;border-bottom:1px solid var(--hair)}
+    .cat-num{font-size:.52rem;letter-spacing:.4em;color:var(--dim);
+             text-transform:uppercase;display:block;margin-bottom:.8rem}
+    .cat-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+               font-size:clamp(3rem,8vw,9rem);letter-spacing:-.01em;
+               text-transform:uppercase;line-height:.9}
+    .cat-jp{font-size:.64rem;letter-spacing:.25em;color:var(--dim);
+            margin-top:1rem;text-transform:uppercase}
+
+    /* ── Content ─────────────────────────────────── */
+    .proj-body{padding:5rem var(--pad) 8rem;max-width:960px}
+
+    .proj-lead{font-weight:300;color:rgba(255,255,255,.65);
+               margin-bottom:4rem;border-left:1px solid rgba(255,255,255,.1);
+               padding-left:2rem;
+               /* EN default */
+               font-size:clamp(.78rem,1.3vw,.95rem);
+               letter-spacing:.06em;line-height:2.1}
+    .proj-lead.lang-jp{font-size:clamp(.6rem,.9vw,.72rem);
+                       letter-spacing:.2em;line-height:2.6;
+                       color:rgba(255,255,255,.55)}
+
+    .proj-section{margin-bottom:4rem}
+    .proj-section-lbl{font-size:.48rem;letter-spacing:.42em;text-transform:uppercase;
+                      color:var(--dim);display:block;margin-bottom:1.6rem}
+    .proj-section-ttl{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+                      font-size:clamp(1.4rem,3vw,2.2rem);letter-spacing:.04em;
+                      text-transform:uppercase;margin-bottom:1.4rem}
+
+    .proj-list{list-style:none;display:grid;
+               grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.6rem 2rem}
+    .proj-list li{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;
+                  color:rgba(255,255,255,.55);padding:.5rem 0;
+                  border-bottom:1px solid rgba(255,255,255,.06);
+                  display:flex;align-items:center;gap:.6rem}
+    .proj-list li::before{content:'';width:4px;height:4px;border-radius:50%;
+                          background:rgba(255,255,255,.25);flex-shrink:0}
+
+    .proj-flow{list-style:none;counter-reset:step}
+    .proj-flow li{counter-increment:step;display:flex;gap:2rem;
+                  padding:1.6rem 0;border-bottom:1px solid var(--hair);align-items:flex-start}
+    .proj-flow li::before{content:counter(step,decimal-leading-zero);
+                          font-family:'Barlow Condensed',sans-serif;font-weight:700;
+                          font-size:2rem;color:rgba(255,255,255,.12);flex-shrink:0;
+                          line-height:1}
+    .proj-flow-ttl{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;
+                   color:var(--fg);display:block;margin-bottom:.4rem}
+    .proj-flow-desc{font-size:.6rem;letter-spacing:.08em;color:rgba(255,255,255,.45);
+                    line-height:1.8}
+
+    .proj-cta{margin-top:5rem;padding:3rem;border:1px solid rgba(255,255,255,.1);
+              display:flex;justify-content:space-between;align-items:center;
+              flex-wrap:wrap;gap:1.6rem}
+    .proj-cta-txt{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+                  font-size:clamp(1.6rem,3.5vw,2.8rem);letter-spacing:.05em;
+                  text-transform:uppercase}
+    .proj-cta-links{display:flex;flex-direction:column;gap:.8rem}
+    .proj-cta-link{font-size:.54rem;letter-spacing:.25em;text-transform:uppercase;
+                   color:rgba(255,255,255,.55);text-decoration:none;
+                   transition:color .2s;cursor:none;display:flex;gap:1rem;align-items:center}
+    .proj-cta-link:hover{color:#fff}
+    .proj-cta-val{color:var(--fg)}
+
+    /* ── Footer ──────────────────────────────────── */
+    .footer{padding:2rem var(--pad);border-top:1px solid var(--hair);
+            display:flex;justify-content:space-between;align-items:center}
+    .footer-l,.footer-r{font-size:.48rem;letter-spacing:.3em;
+                         text-transform:uppercase;color:var(--dim)}
+
+    /* ── Scroll reveal ───────────────────────────── */
+    .rev{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+    .rev.in{opacity:1;transform:none}
+
+    /* ── Responsive ──────────────────────────────── */
+    @media(max-width:600px){
+      .proj-cta{flex-direction:column;align-items:flex-start}
+      .proj-list{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cd"></div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">TAKAHASHI LAB.</a>
+    <a href="index.html#works" class="nav-back" id="back-link">Works</a>
+    <button class="lang-btn" id="lang-toggle">JP</button>
+  </nav>
+
+  <header class="cat-hd rev">
+    <span class="cat-num">Project</span>
+    <h1 class="cat-title" id="proj-title">YOUR PROJECT</h1>
+    <p class="cat-jp"     id="proj-jp">あなたのプロジェクト</p>
+  </header>
+
+  <div class="proj-body">
+
+    <p class="proj-lead rev" id="proj-lead"></p>
+
+    <div class="proj-section rev">
+      <span class="proj-section-lbl">対応ジャンル</span>
+      <h2 class="proj-section-ttl" id="genre-ttl">WHAT WE SHOOT</h2>
+      <ul class="proj-list" id="genre-list">
+        <li>ビジュアル撮影</li>
+        <li>ポートレート / 宣材</li>
+        <li>アーティスト写真</li>
+        <li>モデル撮影</li>
+        <li>アパレル撮影</li>
+        <li>ウェディング</li>
+        <li>マタニティ</li>
+        <li>スポーツ撮影</li>
+        <li>ライブ撮影</li>
+        <li>イベント撮影</li>
+        <li>店舗・ブランド撮影</li>
+        <li>物件撮影</li>
+        <li>商品・物撮り</li>
+        <li>プロモーション映像</li>
+      </ul>
+    </div>
+
+    <div class="proj-section rev">
+      <span class="proj-section-lbl">ご依頼の流れ</span>
+      <h2 class="proj-section-ttl" id="flow-ttl">HOW IT WORKS</h2>
+      <ul class="proj-flow" id="flow-list">
+        <li>
+          <div>
+            <span class="proj-flow-ttl">お問い合わせ</span>
+            <span class="proj-flow-desc">メールまたはInstagramのDMにて、撮影内容・日程・ご予算の概要をお送りください。</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <span class="proj-flow-ttl">ヒアリング・お見積り</span>
+            <span class="proj-flow-desc">詳細をお伺いし、撮影プランと料金をご提示します。</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <span class="proj-flow-ttl">撮影当日</span>
+            <span class="proj-flow-desc">ロケーション・スタジオにて撮影を行います。ディレクションも対応可能です。</span>
+          </div>
+        </li>
+        <li>
+          <div>
+            <span class="proj-flow-ttl">納品</span>
+            <span class="proj-flow-desc">レタッチ後、データをオンラインにてお渡しします。通常1〜2週間以内。</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="proj-cta rev">
+      <span class="proj-cta-txt" id="cta-ttl">GET IN TOUCH</span>
+      <div class="proj-cta-links">
+        <a class="proj-cta-link" href="mailto:takahashilab.create@gmail.com">
+          <span id="cta-mail-lbl">Mail</span>
+          <span class="proj-cta-val">takahashilab.create@gmail.com</span>
+        </a>
+        <a class="proj-cta-link" href="https://www.instagram.com/hayato.jpg/" target="_blank" rel="noopener">
+          <span>Instagram</span>
+          <span class="proj-cta-val">@hayato.jpg</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <span class="footer-l">TAKAHASHI LAB.</span>
+    <span class="footer-r">Hayato Takahashi — Photographer</span>
+  </footer>
+
+  <script>
+  /* ── Custom cursor ───────────────────────────────────── */
+  const cd = document.getElementById('cd');
+  document.addEventListener('mousemove', e => {
+    cd.style.left = e.clientX + 'px';
+    cd.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a,.lang-btn').forEach(el => {
+    el.addEventListener('mouseenter', () => cd.style.transform = 'translate(-50%,-50%) scale(2.2)');
+    el.addEventListener('mouseleave', () => cd.style.transform = 'translate(-50%,-50%) scale(1)');
+  });
+
+  /* ── Lang toggle ─────────────────────────────────────── */
+  const I18N = {
+    en: {
+      'proj-title':    'YOUR PROJECT',
+      'proj-jp':       'あなたのプロジェクト',
+      'proj-lead':     'Photography is an art of the instant.<br>That is why we create images that make people stop, look, and feel something at first sight.<br><br>At TAKAHASHI LAB., we design visual expressions across photography, film, styling, direction, composition, and editing, tailored to the purpose of each project.<br><br>From visual shoots, portraits, artist photos, model shoots, apparel photography, weddings, maternity, sports, live performances, events, shops and brand visuals, property photography, product photography, to promotional films.<br><br>Even if your image is not fully formed yet, that is completely fine.<br>Through conversation, we find the shape that belongs only to that person, place, or project.<br><br>The next frame is with you.<br>Feel free to reach out, even if your idea is still vague.',
+      'genre-ttl':     'WHAT WE SHOOT',
+      'flow-ttl':      'HOW IT WORKS',
+      'cta-ttl':       'GET IN TOUCH',
+      'cta-mail-lbl':  'Mail',
+      'back-link':     'Works',
+    },
+    jp: {
+      'proj-title':    'YOUR PROJECT',
+      'proj-jp':       'あなたのプロジェクト',
+      'proj-lead':     '写真は一瞬の芸術。<br>だからこそ、誰もがみた瞬間にあっと驚くような、作品を。<br><br>TAKAHASHI LAB.では、写真・映像・衣装・構成・編集までを横断しながら、目的に合わせた表現を設計します。<br><br>ビジュアル撮影、ポートレート / 宣材、アーティスト写真、モデル撮影、アパレル撮影、ウェディング、マタニティ、スポーツ撮影、ライブ撮影、イベント撮影、店舗・ブランド撮影、物件撮影、商品・物撮り、プロモーション映像まで<br><br>完成されたイメージがまだなくても大丈夫です。<br>会話の中から、その人や場所にしかないかたちを見つけていきます。<br><br>次の一枚は、あなたと。<br>まずは、まだ曖昧なイメージのままでもご相談ください。',
+      'genre-ttl':     '対応ジャンル',
+      'flow-ttl':      'ご依頼の流れ',
+      'cta-ttl':       'お問い合わせ',
+      'cta-mail-lbl':  'メール',
+      'back-link':     'ワークス',
+    }
+  };
+
+  const langBtn = document.getElementById('lang-toggle');
+  let lang = localStorage.getItem('lang') || 'en';
+
+  function setLang(l) {
+    lang = l;
+    localStorage.setItem('lang', l);
+    langBtn.textContent = l === 'en' ? 'JP' : 'EN';
+    const t = I18N[l];
+    Object.keys(t).forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (id === 'proj-lead') el.innerHTML = t[id];
+      else el.textContent = t[id];
+    });
+    const lead = document.getElementById('proj-lead');
+    if (lead) lead.classList.toggle('lang-jp', l === 'jp');
+  }
+  langBtn.addEventListener('click', () => setLang(lang === 'en' ? 'jp' : 'en'));
+  setLang(lang);
+
+  /* ── Scroll reveal ───────────────────────────────────── */
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+  }, {threshold:.12});
+  document.querySelectorAll('.rev').forEach(el => obs.observe(el));
+  </script>
+</body>
+</html>

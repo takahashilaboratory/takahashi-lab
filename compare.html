@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Image Comparison — Original vs Web Copy</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0a0a0a;--fg:#efefef;--dim:#555;--hair:rgba(255,255,255,.07);
+      --ok:#2ecc71;--warn:#e67e22;
+    }
+    body{background:var(--bg);color:var(--fg);font-family:system-ui,'Inter',sans-serif;
+         font-size:13px;line-height:1.5}
+
+    /* ── Header ── */
+    .page-hd{padding:2.4rem 2rem 1.6rem;border-bottom:1px solid var(--hair)}
+    .page-hd h1{font-size:1.2rem;font-weight:600;letter-spacing:.04em;margin-bottom:.4rem}
+    .page-hd p{color:var(--dim);font-size:.82rem;line-height:1.7;max-width:680px}
+    .page-hd .checklist{margin-top:.8rem;display:flex;flex-wrap:wrap;gap:.4rem .8rem}
+    .page-hd .checklist span{font-size:.75rem;color:rgba(255,255,255,.45);
+                             border:1px solid var(--hair);padding:.2rem .5rem;border-radius:2px}
+
+    /* ── Nav strip ── */
+    .nav-strip{display:flex;gap:.3rem;padding:.8rem 2rem;border-bottom:1px solid var(--hair);
+               flex-wrap:wrap;position:sticky;top:0;z-index:10;
+               background:rgba(10,10,10,.95);backdrop-filter:blur(8px)}
+    .nav-strip a{font-size:.72rem;letter-spacing:.06em;color:var(--dim);text-decoration:none;
+                 border:1px solid rgba(255,255,255,.06);padding:.25rem .55rem;transition:color .15s,border-color .15s}
+    .nav-strip a:hover{color:var(--fg);border-color:rgba(255,255,255,.2)}
+
+    /* ── Pair container ── */
+    .pair{padding:3rem 2rem;border-bottom:1px solid var(--hair)}
+    .pair-hd{margin-bottom:1.4rem}
+    .pair-hd h2{font-size:.9rem;font-weight:600;letter-spacing:.05em;
+                text-transform:uppercase;margin-bottom:.3rem}
+    .pair-hd .reduction{display:inline-block;font-size:.72rem;letter-spacing:.06em;
+                        padding:.15rem .45rem;border-radius:2px;margin-left:.6rem;
+                        font-weight:700}
+    .reduction.high{background:rgba(46,204,113,.15);color:var(--ok)}
+    .reduction.med {background:rgba(230,126,34,.1); color:var(--warn)}
+
+    /* ── Side-by-side ── */
+    .sides{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+    @media(max-width:800px){.sides{grid-template-columns:1fr}}
+
+    .side{position:relative}
+    .side-badge{position:absolute;top:.5rem;left:.5rem;z-index:2;
+                font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+                font-weight:700;padding:.25rem .5rem;border-radius:2px}
+    .badge-orig{background:rgba(255,255,255,.12);color:#fff}
+    .badge-web {background:rgba(46,204,113,.25);color:var(--ok)}
+
+    .side img{width:100%;height:auto;display:block;border:1px solid var(--hair)}
+    .side video{width:100%;height:auto;display:block;border:1px solid var(--hair)}
+
+    .side-meta{margin-top:.6rem;display:flex;flex-direction:column;gap:.2rem}
+    .meta-row{display:flex;justify-content:space-between;align-items:center;
+              font-size:.72rem;color:var(--dim)}
+    .meta-row .lbl{color:rgba(255,255,255,.35)}
+    .meta-row .val{font-variant-numeric:tabular-nums}
+    .meta-row .val.size-orig{color:var(--warn)}
+    .meta-row .val.size-web {color:var(--ok)}
+    .meta-row .val.dim{color:rgba(255,255,255,.55)}
+
+    /* ── Instructions ── */
+    .zoom-tip{font-size:.72rem;color:rgba(255,255,255,.25);margin-top:.5rem;
+              font-style:italic}
+
+    /* ── Video section ── */
+    .video-section{padding:3rem 2rem;border-bottom:1px solid var(--hair)}
+    .video-section h2{font-size:.9rem;font-weight:600;letter-spacing:.05em;
+                      text-transform:uppercase;margin-bottom:1rem}
+    .video-options{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem}
+    .vid-card{border:1px solid var(--hair);padding:1rem}
+    .vid-card h3{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;
+                 font-weight:600;margin-bottom:.6rem}
+    .vid-card video{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;
+                    background:#111;margin-bottom:.7rem}
+    .vid-card .meta{font-size:.7rem;color:var(--dim);display:flex;
+                    flex-direction:column;gap:.3rem}
+    .vid-card .meta b{color:rgba(255,255,255,.55)}
+    .vid-note{margin-top:1.2rem;font-size:.75rem;color:rgba(255,255,255,.3);
+              line-height:1.7;max-width:640px;border-left:1px solid var(--hair);
+              padding-left:1rem}
+
+    /* ── Footer ── */
+    .page-ft{padding:2rem;font-size:.72rem;color:var(--dim);
+             border-top:1px solid var(--hair)}
+  </style>
+</head>
+<body>
+
+<div class="page-hd">
+  <h1>Original vs Web Copy — Visual Comparison</h1>
+  <p>Check each pair carefully at 100% zoom (Cmd + scroll). Both images are loaded directly from disk — no processing in the browser. What you see is exactly what will be served.</p>
+  <div class="checklist">
+    <span>Color accuracy</span>
+    <span>Contrast / brightness</span>
+    <span>Shadow / highlight detail</span>
+    <span>Grain / texture</span>
+    <span>Sharpness / edge detail</span>
+    <span>Overall atmosphere</span>
+    <span>Skin tones</span>
+  </div>
+</div>
+
+<div class="nav-strip">
+  <a href="#profile">Profile</a>
+  <a href="#art4">ART 4</a>
+  <a href="#art18">ART 18</a>
+  <a href="#art2">ART 2</a>
+  <a href="#art7">ART 7</a>
+  <a href="#art11">ART 11</a>
+  <a href="#visual-cover">VISUAL cover</a>
+  <a href="#visual-enhanced">VISUAL enhanced</a>
+  <a href="#property1">PROPERTY 1</a>
+  <a href="#property2">PROPERTY 2</a>
+  <a href="#promotion">PROMOTION</a>
+  <a href="#wedding">WEDDING</a>
+  <a href="#film">FILM</a>
+  <a href="#artist">ARTIST</a>
+  <a href="#apparel">APPAREL</a>
+  <a href="#model">MODEL</a>
+  <a href="#video">VIDEO</a>
+</div>
+
+
+<!-- ─────────────────────────── PROFILE ─────────────────────────── -->
+<div class="pair" id="profile">
+  <div class="pair-hd">
+    <h2>Profile Photo <span class="reduction high">−87%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="1.jpg" alt="profile original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">1.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">3.3 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">6192 × 8256 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/1.jpg" alt="profile web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/1.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">428 KB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">1800 × 2400 px</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="zoom-tip">Tip: open both in new tabs and zoom in to compare grain and sharpness</p>
+</div>
+
+
+<!-- ─────────────────────────── ART 4 ─────────────────────────── -->
+<div class="pair" id="art4">
+  <div class="pair-hd">
+    <h2>ART / 4.jpg — largest file <span class="reduction high">−96%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="ART/4.jpg" alt="art 4 original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">ART/4.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">141.4 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">11962 × 15949 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/ART/4.jpg" alt="art 4 web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/ART/4.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">5.5 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2880 × 3840 px</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="zoom-tip">Open both in new tabs. At screen resolution these should look identical — check fine texture and shadow detail.</p>
+</div>
+
+
+<!-- ─────────────────────────── ART 18 ─────────────────────────── -->
+<div class="pair" id="art18">
+  <div class="pair-hd">
+    <h2>ART / 18.jpg <span class="reduction high">−97%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="ART/18.jpg" alt="art 18 original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">ART/18.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">114.5 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">12384 × 16512 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/ART/18.jpg" alt="art 18 web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/ART/18.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">3.9 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2880 × 3840 px</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─────────────────────────── ART 2 ─────────────────────────── -->
+<div class="pair" id="art2">
+  <div class="pair-hd">
+    <h2>ART / 2.jpg <span class="reduction high">−98%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="ART/2.jpg" alt="art 2 original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">ART/2.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">102.8 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">12275 × 16367 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/ART/2.jpg" alt="art 2 web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/ART/2.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">2.5 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2880 × 3840 px</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─────────────────────────── ART 7 ─────────────────────────── -->
+<div class="pair" id="art7">
+  <div class="pair-hd">
+    <h2>ART / 7.jpg <span class="reduction high">−92%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="ART/7.jpg" alt="art 7 original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">ART/7.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">54.3 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">6119 × 8159 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/ART/7.jpg" alt="art 7 web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/ART/7.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">4.3 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2880 × 3840 px</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─────────────────────────── ART 11 ─────────────────────────── -->
+<div class="pair" id="art11">
+  <div class="pair-hd">
+    <h2>ART / 11.jpg <span class="reduction high">−96%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="ART/11.jpg" alt="art 11 original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">ART/11.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">90.1 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">12101 × 16135 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/ART/11.jpg" alt="art 11 web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/ART/11.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">3.2 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2880 × 3840 px</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─────────────────────────── VISUAL cover ─────────────────────────── -->
+<div class="pair" id="visual-cover">
+  <div class="pair-hd">
+    <h2>VISUAL — cover (moon + car) <span class="reduction high">−91%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="TAKAHASHI LAB インスタ投稿用/ビジュアル撮影/ooo-Enhanced.jpg" alt="visual cover original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">ooo-Enhanced.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">11.5 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">5100 × 7686 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/works/ビジュアル撮影/ooo-Enhanced.jpg" alt="visual cover web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/works/ビジュアル撮影/ooo-Enhanced.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">1.0 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">1990 × 3000 px</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─────────────────────────── VISUAL enhanced ─────────────────────────── -->
+<div class="pair" id="visual-enhanced">
+  <div class="pair-hd">
+    <h2>VISUAL — DSC5093 Enhanced <span class="reduction high">−94%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="TAKAHASHI LAB インスタ投稿用/ビジュアル撮影/_DSC5093-Enhanced.jpg" alt="visual dsc5093 original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">_DSC5093-Enhanced.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">38.9 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">7424 × 11136 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/works/ビジュアル撮影/_DSC5093-Enhanced.jpg" alt="visual dsc5093 web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/works/ビジュアル撮影/_DSC5093-Enhanced.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">2.3 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2000 × 3000 px</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─────────────────────────── PROPERTY 1 ─────────────────────────── -->
+<div class="pair" id="property1">
+  <div class="pair-hd">
+    <h2>PROPERTY — DSF3458 (57 MB → 2 MB) <span class="reduction high">−97%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="TAKAHASHI LAB インスタ投稿用/物件撮影/_DSF3458.jpg" alt="property original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">_DSF3458.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">57.2 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">6192 × 8256 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/works/物件撮影/_DSF3458.jpg" alt="property web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/works/物件撮影/_DSF3458.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">2.0 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2250 × 3000 px</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─────────────────────────── PROPERTY 2 (cover) ─────────────────────────── -->
+<div class="pair" id="property2">
+  <div class="pair-hd">
+    <h2>PROPERTY — DSF6382 cover (blue house) <span class="reduction high">−94%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="TAKAHASHI LAB インスタ投稿用/物件撮影/_DSF6382.jpg" alt="property cover original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">_DSF6382.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">34.6 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">5992 × 7990 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/works/物件撮影/_DSF6382.jpg" alt="property cover web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/works/物件撮影/_DSF6382.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">2.1 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2250 × 3000 px</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─────────────────────────── PROMOTION ─────────────────────────── -->
+<div class="pair" id="promotion">
+  <div class="pair-hd">
+    <h2>PROMOTION — DSC2428 cover (welder) <span class="reduction high">−88%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="TAKAHASHI LAB インスタ投稿用/工事　プロモーション/_DSC2428.jpg" alt="promotion original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">_DSC2428.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">12.8 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">3712 × 5568 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/works/工事　プロモーション/_DSC2428.jpg" alt="promotion web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/works/工事　プロモーション/_DSC2428.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">1.6 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2000 × 3000 px</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─────────────────────────── WEDDING ─────────────────────────── -->
+<div class="pair" id="wedding">
+  <div class="pair-hd">
+    <h2>WEDDING — DSF5609 cover (B&amp;W ring) <span class="reduction high">−95%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="TAKAHASHI LAB インスタ投稿用/ウェディングフォト/_DSF5609.jpg" alt="wedding original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">_DSF5609.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">7.4 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">6192 × 8256 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/works/ウェディングフォト/_DSF5609.jpg" alt="wedding web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/works/ウェディングフォト/_DSF5609.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">404 KB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2250 × 3000 px</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─────────────────────────── FILM ─────────────────────────── -->
+<div class="pair" id="film">
+  <div class="pair-hd">
+    <h2>FILM — 000007 cover (hands + flowers) <span class="reduction high">−88%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="TAKAHASHI LAB インスタ投稿用/中判フィルムカメラ/000007-Enhanced.jpg" alt="film original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">000007-Enhanced.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">13.9 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">5425 × 6561 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/works/中判フィルムカメラ/000007-Enhanced.jpg" alt="film web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/works/中判フィルムカメラ/000007-Enhanced.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">1.6 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2480 × 3000 px</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="zoom-tip">Film grain is especially important here — check that the medium format texture is preserved in the web copy.</p>
+</div>
+
+
+<!-- ─────────────────────────── ARTIST ─────────────────────────── -->
+<div class="pair" id="artist">
+  <div class="pair-hd">
+    <h2>ARTIST — DSF0571 cover <span class="reduction high">−94%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="TAKAHASHI LAB インスタ投稿用/アーティスト写真/_DSF0571.jpg" alt="artist original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">_DSF0571.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">27.9 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">5908 × 7878 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/works/アーティスト写真/_DSF0571.jpg" alt="artist web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/works/アーティスト写真/_DSF0571.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">1.6 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2250 × 3000 px</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─────────────────────────── APPAREL ─────────────────────────── -->
+<div class="pair" id="apparel">
+  <div class="pair-hd">
+    <h2>APPAREL FASHION — DSF8354 <span class="reduction high">−95%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="TAKAHASHI LAB インスタ投稿用/アパレル人物撮影/_DSF8354.jpg" alt="apparel original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">_DSF8354.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">38.6 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">6192 × 8256 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/works/アパレル人物撮影/_DSF8354.jpg" alt="apparel web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/works/アパレル人物撮影/_DSF8354.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">1.9 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2250 × 3000 px</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─────────────────────────── MODEL ─────────────────────────── -->
+<div class="pair" id="model">
+  <div class="pair-hd">
+    <h2>MODEL — DSC5346 Enhanced (34 MB → 2.2 MB) <span class="reduction high">−93%</span></h2>
+  </div>
+  <div class="sides">
+    <div class="side">
+      <span class="side-badge badge-orig">Original</span>
+      <img src="TAKAHASHI LAB インスタ投稿用/モデル撮影/_DSC5346-Enhanced.jpg" alt="model original" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">_DSC5346-Enhanced.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-orig">33.8 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">6804 × 10206 px</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <span class="side-badge badge-web">Web copy</span>
+      <img src="assets/web/works/モデル撮影/_DSC5346-Enhanced.jpg" alt="model web" loading="lazy">
+      <div class="side-meta">
+        <div class="meta-row"><span class="lbl">File</span><span class="val">assets/web/works/モデル撮影/_DSC5346-Enhanced.jpg</span></div>
+        <div class="meta-row"><span class="lbl">Size</span><span class="val size-web">2.2 MB</span></div>
+        <div class="meta-row"><span class="lbl">Dimensions</span><span class="val dim">2000 × 3000 px</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="zoom-tip">Check skin tone rendering and shadow gradients carefully.</p>
+</div>
+
+
+<!-- ─────────────────────────── VIDEO ─────────────────────────── -->
+<div class="video-section" id="video">
+  <h2>MOVIE — Video Encode Options</h2>
+  <p style="font-size:.78rem;color:var(--dim);margin-bottom:1.4rem;line-height:1.7">
+    The original MOV is <strong style="color:rgba(255,255,255,.5)">703 MB</strong>, PCM audio, 66 Mbps.
+    Three encode options are shown below — BT.709 color is preserved in all three.
+    Please choose which quality/size trade-off is acceptable for the portfolio.
+  </p>
+  <div class="video-options">
+
+    <div class="vid-card">
+      <h3>Option A — 4K CRF 16 <span style="font-size:.65rem;color:var(--warn)">(current)</span></h3>
+      <video controls preload="metadata">
+        <source src="assets/web/movie/running-movie.mp4" type="video/mp4">
+      </video>
+      <div class="meta">
+        <div><b>File size:</b> 583 MB</div>
+        <div><b>Resolution:</b> 3840 × 2160 (4K)</div>
+        <div><b>Bitrate:</b> ~56 Mbps</div>
+        <div><b>Audio:</b> AAC 320k</div>
+        <div style="margin-top:.4rem;color:rgba(255,100,100,.7)">⚠ Too large for web — would take 1–2 min to buffer on average connection</div>
+      </div>
+    </div>
+
+    <div class="vid-card">
+      <h3>Option B — 4K CRF 23</h3>
+      <video controls preload="metadata">
+        <source src="assets/web/movie/running-movie-crf23.mp4" type="video/mp4">
+      </video>
+      <div class="meta">
+        <div><b>File size:</b> 195 MB</div>
+        <div><b>Resolution:</b> 3840 × 2160 (4K)</div>
+        <div><b>Bitrate:</b> ~18 Mbps</div>
+        <div><b>Audio:</b> AAC 256k</div>
+        <div style="margin-top:.4rem;color:rgba(255,200,50,.7)">△ Better, but still heavy — good if targeting high-speed connections only</div>
+      </div>
+    </div>
+
+    <div class="vid-card">
+      <h3>Option C — 1080p CRF 18 <span style="font-size:.65rem;color:var(--ok)">(recommended)</span></h3>
+      <video controls preload="metadata">
+        <source src="assets/web/movie/running-movie-1080p-crf18.mp4" type="video/mp4">
+      </video>
+      <div class="meta">
+        <div><b>File size:</b> 123 MB</div>
+        <div><b>Resolution:</b> 1920 × 1080</div>
+        <div><b>Bitrate:</b> ~11 Mbps</div>
+        <div><b>Audio:</b> AAC 256k</div>
+        <div style="margin-top:.4rem;color:rgba(46,204,113,.7)">✓ 1080p is sufficient for portfolio tiles — indistinguishable from 4K at typical screen sizes</div>
+      </div>
+    </div>
+
+  </div>
+  <p class="vid-note">
+    Note: The video is 86 seconds long. For an autoplay loop tile in the WORKS grid,
+    even 123 MB may feel slow on mobile. If you'd like to trim it to a shorter clip
+    (e.g., 15–30 sec highlight), the file size would drop proportionally.
+    Original MOV stays untouched either way.
+  </p>
+</div>
+
+
+<div class="page-ft">
+  This page is temporary — for visual review only. No HTML paths have been changed.<br>
+  Original files are untouched. Web copies are in <code>assets/web/</code>.
+</div>
+
+</body>
+</html>

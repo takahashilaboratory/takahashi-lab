@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TAKAHASHI LAB.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0a0a0a; --fg:#efefef; --dim:#4a4a4a; --hair:rgba(255,255,255,.08);
+      --pad:clamp(1.2rem,4vw,4rem); --gap:4px;
+    }
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--fg);font-family:'Inter',sans-serif;
+         font-weight:300;line-height:1.6;min-height:100vh;
+         cursor:none}
+
+    /* ── Custom cursor ───────────────────────────── */
+    #cd{position:fixed;top:0;left:0;width:32px;height:32px;
+        border-radius:50%;border:1px solid rgba(255,255,255,.55);
+        pointer-events:none;z-index:99999;
+        transform:translate(-50%,-50%);transition:transform .08s,opacity .2s;opacity:0}
+    body:hover #cd{opacity:1}
+
+    /* ── Nav ─────────────────────────────────────── */
+    .nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;
+         justify-content:space-between;padding:1.4rem var(--pad);
+         background:rgba(10,10,10,.88);backdrop-filter:blur(12px);
+         border-bottom:1px solid var(--hair)}
+    .nav-logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+              font-size:.9rem;letter-spacing:.22em;text-transform:uppercase;
+              color:var(--fg);text-decoration:none}
+    .nav-back{display:flex;align-items:center;gap:.5rem;
+              font-size:.54rem;letter-spacing:.3em;text-transform:uppercase;
+              color:var(--dim);text-decoration:none;transition:color .2s;cursor:none}
+    .nav-back:hover{color:var(--fg)}
+    .nav-back::before{content:'←';font-size:.8rem;letter-spacing:0}
+    .lang-btn{font-size:.5rem;letter-spacing:.28em;text-transform:uppercase;
+              color:var(--fg);background:none;border:1px solid var(--hair);
+              padding:.3rem .55rem;cursor:none;transition:border-color .2s}
+    .lang-btn:hover{border-color:rgba(255,255,255,.3)}
+
+    /* ── Category header ─────────────────────────── */
+    .cat-hd{padding:4rem var(--pad) 3rem;border-bottom:1px solid var(--hair)}
+    .cat-num{font-size:.52rem;letter-spacing:.4em;color:var(--dim);
+             text-transform:uppercase;display:block;margin-bottom:.8rem}
+    .cat-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+               font-size:clamp(3rem,8vw,9rem);letter-spacing:-.01em;
+               text-transform:uppercase;line-height:.9}
+    .cat-jp{font-size:.64rem;letter-spacing:.25em;color:var(--dim);
+            margin-top:1rem;text-transform:uppercase}
+    .cat-count{font-size:.5rem;letter-spacing:.3em;color:var(--dim);
+               margin-top:.4rem;opacity:.6}
+
+    /* ── Photo grid ──────────────────────────────── */
+    .cat-grid{column-count:3;column-gap:var(--gap);
+              padding:var(--gap) var(--pad) 6rem}
+    .cat-photo{break-inside:avoid;margin-bottom:var(--gap);
+               cursor:none;overflow:hidden;position:relative}
+    .cat-photo img{width:100%;height:auto;display:block;
+                   transition:opacity .25s}
+    .cat-photo:hover img{opacity:.82}
+    .cat-photo-n{position:absolute;bottom:.5rem;right:.6rem;
+                 font-size:.42rem;letter-spacing:.2em;color:rgba(255,255,255,.3);
+                 pointer-events:none}
+
+    /* regular 3-column grid (product category) */
+    .cat-grid.reg{display:grid;grid-template-columns:repeat(3,1fr);
+                  gap:var(--gap);column-count:unset;padding:var(--gap) var(--pad) 6rem}
+    .cat-grid.reg .cat-photo{break-inside:unset;margin-bottom:0}
+
+    /* ── Lightbox ────────────────────────────────── */
+    #lb{position:fixed;inset:0;background:rgba(5,5,5,.97);z-index:9000;
+        display:flex;align-items:center;justify-content:center;
+        opacity:0;pointer-events:none;transition:opacity .22s}
+    #lb.open{opacity:1;pointer-events:all}
+    .lb-img-wrap{position:relative;max-width:90vw;max-height:90vh;
+                 display:flex;align-items:center;justify-content:center}
+    #lb-img{max-width:90vw;max-height:90vh;width:auto;height:auto;display:block;
+            transition:opacity .16s}
+    #lb-img.fading{opacity:0}
+    #lb-close{position:fixed;top:1.5rem;right:1.8rem;font-size:1.3rem;
+              color:rgba(255,255,255,.5);background:none;border:none;
+              cursor:none;transition:color .2s;z-index:9001}
+    #lb-close:hover{color:#fff}
+    #lb-prev,#lb-next{position:fixed;top:50%;transform:translateY(-50%);
+                      font-size:1.8rem;color:rgba(255,255,255,.4);
+                      background:none;border:none;cursor:none;
+                      transition:color .2s;z-index:9001}
+    #lb-prev{left:1.5rem} #lb-next{right:1.5rem}
+    #lb-prev:hover,#lb-next:hover{color:#fff}
+    #lb-counter{position:fixed;bottom:1.6rem;left:50%;transform:translateX(-50%);
+                font-size:.5rem;letter-spacing:.3em;color:rgba(255,255,255,.4)}
+
+    /* ── Footer ──────────────────────────────────── */
+    .footer{padding:2rem var(--pad);border-top:1px solid var(--hair);
+            display:flex;justify-content:space-between;align-items:center}
+    .footer-l,.footer-r{font-size:.48rem;letter-spacing:.3em;
+                         text-transform:uppercase;color:var(--dim)}
+
+    /* ── Responsive ──────────────────────────────── */
+    @media(max-width:768px){
+      .cat-grid{column-count:2}
+      .cat-grid.reg{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:480px){
+      .cat-grid{column-count:1}
+      .cat-grid.reg{grid-template-columns:1fr}
+      #lb-prev{left:.5rem} #lb-next{right:.5rem}
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cd"></div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">TAKAHASHI LAB.</a>
+    <a href="index.html#works" class="nav-back" id="back-link">Works</a>
+    <button class="lang-btn" id="lang-toggle">JP</button>
+  </nav>
+
+  <header class="cat-hd">
+    <span class="cat-num" id="cat-num">02 — Works</span>
+    <h1 class="cat-title" id="cat-title"></h1>
+    <p class="cat-jp"   id="cat-jp"></p>
+    <p class="cat-count" id="cat-count"></p>
+  </header>
+
+  <div class="cat-grid" id="cat-grid"></div>
+
+  <!-- Lightbox -->
+  <div id="lb">
+    <button id="lb-close">&#x2715;</button>
+    <button id="lb-prev">&#8592;</button>
+    <div class="lb-img-wrap"><img id="lb-img" src="" alt=""></div>
+    <button id="lb-next">&#8594;</button>
+    <span id="lb-counter"></span>
+  </div>
+
+  <footer class="footer">
+    <span class="footer-l">TAKAHASHI LAB.</span>
+    <span class="footer-r" id="footer-r">Hayato Takahashi — Photographer</span>
+  </footer>
+
+  <script>
+  /* ── WORKS data (shared with index.html) ─────────────────── */
+  const WORKS = [
+    { title:'VISUAL',           jp:'ビジュアル撮影',       imgs:[
+      'assets/web/works/ビジュアル撮影/ooo-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC0654-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC0681-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC3096.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC4460.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC5048.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC5093-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC5636.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC6117-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC6352.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC7255-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC8912-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSF9064.jpg',
+      'assets/web/works/ビジュアル撮影/_DSF9126.jpg'
+    ]},
+    { title:'PORTRAIT',         jp:'宣材写真',             imgs:[
+      'assets/web/works/宣材写真/_DSC8394.jpg',
+      'assets/web/works/宣材写真/_DSC8402.jpg',
+      'assets/web/works/宣材写真/_DSC8818.jpg',
+      'assets/web/works/宣材写真/_DSF5172.jpg',
+      'assets/web/works/宣材写真/_DSF5200.jpg'
+    ]},
+    { title:'APPAREL FASHION',  jp:'アパレル人物撮影',     imgs:[
+      'assets/web/works/アパレル人物撮影/_DSC5911.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC3738.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC3913.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC3922.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC3945.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC4005.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC4194.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC4973.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC5915.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC6547.jpg',
+      'assets/web/works/アパレル人物撮影/_DSF8354.jpg',
+      'assets/web/works/アパレル人物撮影/_DSF8360.jpg',
+      'assets/web/works/アパレル人物撮影/_DSF8366.jpg'
+    ]},
+    { title:'APPAREL STUDIO',   jp:'アパレルスタジオ撮影', imgs:[
+      'assets/web/works/アパレルスタジオ撮影/_DSF1893.jpg',
+      'assets/web/works/アパレルスタジオ撮影/_DSF1668.jpg',
+      'assets/web/works/アパレルスタジオ撮影/_DSF1676.jpg',
+      'assets/web/works/アパレルスタジオ撮影/_DSF1861.jpg'
+    ]},
+    { title:'APPAREL PRODUCT',  jp:'アパレル物撮り',       grid:true, imgs:[
+      'assets/web/works/アパレル物撮り/_DSF6504.jpg',
+      'assets/web/works/アパレル物撮り/IMG_0908.jpg',
+      'assets/web/works/アパレル物撮り/_DSC5084.jpg',
+      'assets/web/works/アパレル物撮り/_DSC6130.jpg',
+      'assets/web/works/アパレル物撮り/_DSC7824.jpg',
+      'assets/web/works/アパレル物撮り/_DSF6507.jpg',
+      'assets/web/works/アパレル物撮り/_DSF6509.jpg',
+      'assets/web/works/アパレル物撮り/_DSF6555.jpg',
+      'assets/web/works/アパレル物撮り/_DSF6564.jpg',
+      'assets/web/works/Leport 写真/_DSC5922.jpg',
+      'assets/web/works/Leport 写真/_DSC5925.jpg',
+      'assets/web/works/Leport 写真/_DSC5931.jpg',
+      'assets/web/works/Leport 写真/_DSC5938.jpg',
+      'assets/web/works/Leport 写真/_DSC5942.jpg',
+      'assets/web/works/Leport 写真/_DSC5950.jpg',
+      'assets/web/works/Leport 写真/_DSC5953.jpg',
+      'assets/web/works/Leport 写真/_DSC5962.jpg',
+      'assets/web/works/Leport 写真/_DSC5967.jpg',
+      'assets/web/works/Leport 写真/_DSC5969.jpg',
+      'assets/web/works/Leport 写真/_DSC5983.jpg',
+      'assets/web/works/Leport 写真/_DSC5986.jpg',
+      'assets/web/works/Leport 写真/_DSC5991.jpg',
+      'assets/web/works/Leport 写真/_DSC5996.jpg',
+      'assets/web/works/Leport 写真/_DSC6068.jpg',
+      'assets/web/works/Leport 写真/_DSC6070.jpg',
+      'assets/web/works/Leport 写真/_DSC6072.jpg',
+      'assets/web/works/Leport 写真/_DSC6075.jpg',
+      'assets/web/works/Leport 写真/_DSC6077.jpg',
+      'assets/web/works/Leport 写真/_DSC6081.jpg',
+      'assets/web/works/Leport 写真/_DSC6083.jpg',
+      'assets/web/works/Leport 写真/_DSC6086.jpg',
+      'assets/web/works/Leport 写真/_DSC6088.jpg',
+      'assets/web/works/Leport 写真/_DSC6103.jpg',
+      'assets/web/works/Leport 写真/_DSC6107.jpg',
+      'assets/web/works/Leport 写真/_DSC6114.jpg',
+      'assets/web/works/Leport 写真/_DSC6117.jpg',
+      'assets/web/works/Leport 写真/_DSC6120.jpg',
+      'assets/web/works/Leport 写真/_DSC6124.jpg'
+    ]},
+    { title:'ARTIST',           jp:'アーティスト写真',     imgs:[
+      'assets/web/works/アーティスト写真/_DSF0571.jpg',
+      'assets/web/works/アーティスト写真/_DSC2571.jpg',
+      'assets/web/works/アーティスト写真/_DSC2946-Enhanced.jpg',
+      'assets/web/works/アーティスト写真/_DSC4359.jpg',
+      'assets/web/works/アーティスト写真/_DSC5975.jpg',
+      'assets/web/works/アーティスト写真/_DSF0556.jpg',
+      'assets/web/works/アーティスト写真/_DSF1897.jpg'
+    ]},
+    { title:'WEDDING',          jp:'ウェディングフォト',   imgs:[
+      'assets/web/works/ウェディングフォト/_DSF5609.jpg',
+      'assets/web/works/ウェディングフォト/_DSF5223.jpg',
+      'assets/web/works/ウェディングフォト/_DSF5278.jpg',
+      'assets/web/works/ウェディングフォト/_DSF5523.jpg',
+      'assets/web/works/ウェディングフォト/_DSF5557.jpg',
+      'assets/web/works/ウェディングフォト/_DSF5562.jpg',
+      'assets/web/works/ウェディングフォト/_DSF5637.jpg'
+    ]},
+    { title:'CEREMONY',         jp:'成人式前撮り',         imgs:[
+      'assets/web/works/成人式前撮り/_DSC0839.jpg',
+      'assets/web/works/成人式前撮り/_DSC1097.jpg',
+      'assets/web/works/成人式前撮り/_DSC1140.jpg',
+      'assets/web/works/成人式前撮り/_DSC7852.jpg',
+      'assets/web/works/成人式前撮り/_DSC7892.jpg',
+      'assets/web/works/成人式前撮り/_DSC8182.jpg',
+      'assets/web/works/成人式前撮り/_DSC9258-Enhanced-SR.jpg',
+      'assets/web/works/成人式前撮り/_DSC9351-Enhanced-SR.jpg'
+    ]},
+    { title:'MATERNITY',        jp:'マタニティフォト',     imgs:[
+      'assets/web/works/マタニティフォト/_DSC5815.jpg',
+      'assets/web/works/マタニティフォト/_DSC5171.jpg',
+      'assets/web/works/マタニティフォト/_DSC5203.jpg',
+      'assets/web/works/マタニティフォト/_DSC5586.jpg',
+      'assets/web/works/マタニティフォト/_DSC5610.jpg',
+      'assets/web/works/マタニティフォト/_DSC5769.jpg',
+      'assets/web/works/マタニティフォト/_DSC5846.jpg'
+    ]},
+    { title:'MODEL',            jp:'モデル撮影',           imgs:[
+      'assets/web/works/モデル撮影/_DSC5346-Enhanced.jpg',
+      'assets/web/works/モデル撮影/_DSC2556.jpg',
+      'assets/web/works/モデル撮影/_DSC2650.jpg',
+      'assets/web/works/モデル撮影/_DSC2709.jpg',
+      'assets/web/works/モデル撮影/_DSC5458.jpg'
+    ]},
+    { title:'LIVE',             jp:'ライブ撮影',           imgs:[
+      'assets/web/works/ライブ撮影/_DSC0917.jpg',
+      'assets/web/works/ライブ撮影/_DSC0743.jpg',
+      'assets/web/works/ライブ撮影/_DSC0871.jpg',
+      'assets/web/works/ライブ撮影/_DSC0895.jpg',
+      'assets/web/works/ライブ撮影/_DSC0938.jpg',
+      'assets/web/works/ライブ撮影/_DSF2434.jpg'
+    ]},
+    { title:'SPORTS',           jp:'スポーツ撮影',         imgs:[
+      'assets/web/works/スポーツ撮影/NIKON Z 50 (4365)-Enhanced-NR.jpg',
+      'assets/web/works/スポーツ撮影/NIKON Z 50 (3969)-Enhanced-NR.jpg',
+      'assets/web/works/スポーツ撮影/NIKON Z 50 (4613)-Enhanced-NR.jpg',
+      'assets/web/works/スポーツ撮影/NIKON Z 50 (480)-Enhanced-NR.jpg'
+    ]},
+    { title:'FILM',             jp:'中判フィルムカメラ',   imgs:[
+      'assets/web/works/中判フィルムカメラ/000007-Enhanced.jpg',
+      'assets/web/works/中判フィルムカメラ/000001-Enhanced.jpg',
+      'assets/web/works/中判フィルムカメラ/000002.jpg',
+      'assets/web/works/中判フィルムカメラ/000006-Enhanced.jpg',
+      'assets/web/works/中判フィルムカメラ/000009-Enhanced.jpg'
+    ]},
+    { title:'CANDLE',           jp:'キャンドル',           imgs:[
+      'assets/web/works/キャンドル/_DSF0454.jpg',
+      'assets/web/works/キャンドル/_DSF0505.jpg',
+      'assets/web/works/キャンドル/_DSF0513.jpg',
+      'assets/web/works/キャンドル/_DSF0521.jpg',
+      'assets/web/works/キャンドル/_DSF0524.jpg',
+      'assets/web/works/キャンドル/_DSF0566.jpg',
+      'assets/web/works/キャンドル/_DSF0581.jpg'
+    ]},
+    { title:'SHISHA',           jp:'シーシャ撮影',         imgs:[
+      'assets/web/works/シーシャ　撮影/_DSC8831.jpg',
+      'assets/web/works/シーシャ　撮影/_DSC8918.jpg',
+      'assets/web/works/シーシャ　撮影/_DSC9756.jpg',
+      'assets/web/works/シーシャ　撮影/_DSC9916.jpg',
+      'assets/web/works/お酒物撮り/_DSC0376.jpg'
+    ]},
+
+    { title:'PROPERTY',         jp:'物件撮影',             imgs:[
+      'assets/web/works/物件撮影/_DSF6382.jpg',
+      'assets/web/works/物件撮影/_DSF3458.jpg',
+      'assets/web/works/物件撮影/_DSF3462.jpg',
+      'assets/web/works/物件撮影/_DSF3465.jpg'
+    ]},
+    { title:'PROMOTION',        jp:'工事プロモーション',   imgs:[
+      'assets/web/works/工事　プロモーション/_DSC2428.jpg',
+      'assets/web/works/工事　プロモーション/_DSC2422.jpg',
+      'assets/web/works/工事　プロモーション/_DSC2491.jpg',
+      'assets/web/works/工事　プロモーション/_DSC2498.jpg'
+    ]},
+    { title:'MOVIE',            jp:'ムービー',             video:'assets/web/movie/running-movie-1080p-crf22.mp4', imgs:[] },
+  ];
+
+  /* ── Find category from URL ─────────────────────────────── */
+  const params  = new URLSearchParams(window.location.search);
+  const catName = params.get('cat') || '';
+  const cat     = WORKS.find(w => w.title === catName);
+
+  if (!cat) {
+    document.getElementById('cat-title').textContent = 'Not Found';
+  } else {
+    const idx = WORKS.indexOf(cat);
+    document.title = 'TAKAHASHI LAB. — ' + cat.title;
+    document.getElementById('cat-num').textContent =
+      String(idx + 1).padStart(2,'0') + ' — Works';
+    document.getElementById('cat-title').textContent = cat.title;
+    document.getElementById('cat-jp').textContent   = cat.jp;
+    const grid = document.getElementById('cat-grid');
+
+    if (cat.video) {
+      document.getElementById('cat-count').textContent = '01 video';
+      const vid = document.createElement('video');
+      vid.src = cat.video;
+      vid.controls = true;
+      vid.style.cssText = 'width:100%;max-width:960px;display:block;margin:0 auto';
+      grid.appendChild(vid);
+    } else {
+      document.getElementById('cat-count').textContent =
+        String(cat.imgs.length).padStart(2,'0') + ' photos';
+      // Use regular 3-col grid for product categories, masonry for others
+      if (cat.grid) grid.classList.add('reg');
+      cat.imgs.forEach((src, ii) => {
+        const ph  = document.createElement('div');
+        ph.className = 'cat-photo';
+        const img = document.createElement('img');
+        img.src = src; img.alt = ''; img.loading = 'lazy';
+        const n = document.createElement('span');
+        n.className = 'cat-photo-n';
+        n.textContent = String(ii + 1).padStart(2,'0');
+        ph.appendChild(img);
+        ph.appendChild(n);
+        ph.addEventListener('click', (() => {
+          const i = ii;
+          return () => lb.open(i);
+        })());
+        grid.appendChild(ph);
+      });
+    }
+  }
+
+  /* ── Lightbox ───────────────────────────────────────────── */
+  const lb = {
+    el:  document.getElementById('lb'),
+    img: document.getElementById('lb-img'),
+    ctr: document.getElementById('lb-counter'),
+    idx: 0,
+    open(i) {
+      this.idx = i;
+      this.el.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      this.render();
+    },
+    close() {
+      this.el.classList.remove('open');
+      document.body.style.overflow = '';
+    },
+    go(d) {
+      if (!cat) return;
+      this.idx = (this.idx + d + cat.imgs.length) % cat.imgs.length;
+      this.img.classList.add('fading');
+      setTimeout(() => { this.render(); this.img.classList.remove('fading'); }, 160);
+    },
+    render() {
+      if (!cat) return;
+      this.img.src = cat.imgs[this.idx];
+      this.ctr.textContent =
+        String(this.idx + 1).padStart(2,'0') + ' / ' +
+        String(cat.imgs.length).padStart(2,'0');
+    }
+  };
+
+  document.getElementById('lb-close').onclick = () => lb.close();
+  document.getElementById('lb-prev').onclick  = () => lb.go(-1);
+  document.getElementById('lb-next').onclick  = () => lb.go(+1);
+  document.getElementById('lb').addEventListener('click', e => {
+    if (e.target === document.getElementById('lb')) lb.close();
+  });
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('lb').classList.contains('open')) return;
+    if (e.key === 'ArrowRight') lb.go(+1);
+    if (e.key === 'ArrowLeft')  lb.go(-1);
+    if (e.key === 'Escape')     lb.close();
+  });
+
+  /* ── I18N ───────────────────────────────────────────────── */
+  const I18N_CAT = {
+    en: { back:'Works', footer:'Hayato Takahashi — Photographer' },
+    ja: { back:'作品',  footer:'高橋颯人 — フォトグラファー' }
+  };
+  let currentLang = 'en';
+  const langBtn = document.getElementById('lang-toggle');
+  function setLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang === 'ja' ? 'ja' : 'en';
+    document.getElementById('back-link').textContent = I18N_CAT[lang].back;
+    document.getElementById('footer-r').textContent  = I18N_CAT[lang].footer;
+    if (cat) {
+      document.getElementById('cat-jp').textContent = lang === 'ja'
+        ? cat.jp
+        : cat.title + ' — ' + cat.jp;
+    }
+    langBtn.textContent = lang === 'en' ? 'JP' : 'EN';
+    try { localStorage.setItem('tl_lang', lang); } catch(e) {}
+  }
+  langBtn.addEventListener('click', () => setLang(currentLang === 'en' ? 'ja' : 'en'));
+  try {
+    const saved = localStorage.getItem('tl_lang');
+    if (saved === 'ja') setLang('ja');
+  } catch(e) {}
+
+  /* ── Cursor ─────────────────────────────────────────────── */
+  const cdEl = document.getElementById('cd');
+  let mx = 0, my = 0, cx = 0, cy = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  (function loop() {
+    cx += (mx - cx) * 0.14; cy += (my - cy) * 0.14;
+    cdEl.style.transform = `translate(${cx}px,${cy}px) translate(-50%,-50%)`;
+    requestAnimationFrame(loop);
+  })();
+  document.querySelectorAll('a,.cat-photo,.lang-btn,#lb-close,#lb-prev,#lb-next').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cdEl.style.transform += ' scale(1.6)';
+      cdEl.style.borderColor = 'rgba(255,255,255,.9)';
+    });
+    el.addEventListener('mouseleave', () => {
+      cdEl.style.borderColor = 'rgba(255,255,255,.55)';
+    });
+  });
+  </script>
+</body>
+</html>

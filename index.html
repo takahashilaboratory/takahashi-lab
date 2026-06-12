@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TAKAHASHI LAB. — Hayato Takahashi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset ─────────────────────────────────────────── */
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    img{display:block} a{color:inherit;text-decoration:none}
+    button{font-family:inherit;cursor:pointer}
+
+    /* ── Tokens ────────────────────────────────────────── */
+    :root{
+      --bg:#0a0a0a; --fg:#efefef; --dim:#555;
+      --hair:rgba(239,239,239,.07);
+      --gap:3px; --pad:5vw;
+    }
+
+    /* ── Base ──────────────────────────────────────────── */
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--fg);font-family:'Inter',sans-serif;
+         font-weight:300;overflow-x:hidden;cursor:none}
+
+    /* ── Cursor ────────────────────────────────────────── */
+    .cd,.cr{position:fixed;border-radius:50%;pointer-events:none;
+            z-index:9999;will-change:left,top;transform:translate(-50%,-50%)}
+    .cd{width:5px;height:5px;background:var(--fg);transition:width .18s,height .18s}
+    .cr{width:34px;height:34px;border:1px solid rgba(239,239,239,.26);
+        transition:width .14s,height .14s,border-color .14s}
+    .cd.on{width:10px;height:10px}
+    .cr.on{width:50px;height:50px;border-color:rgba(239,239,239,.5)}
+
+    /* ── Nav ───────────────────────────────────────────── */
+    .nav{position:fixed;inset:0 0 auto;z-index:800;display:flex;
+         justify-content:space-between;align-items:center;
+         padding:1.8rem var(--pad);mix-blend-mode:difference}
+    .nav-logo{font-weight:500;font-size:.68rem;letter-spacing:.28em;text-transform:uppercase}
+    .nav-links{list-style:none;display:flex;gap:2.2rem}
+    .nav-links a{font-size:.62rem;font-weight:500;letter-spacing:.22em;
+                 text-transform:uppercase;opacity:.7;transition:opacity .2s}
+    .nav-links a:hover{opacity:1}
+
+    /* ══════════════════════════════════════════════════════
+       HERO — "HAYATO TAKAHASHI" centered + glow
+    ══════════════════════════════════════════════════════ */
+    .hero{height:100svh;min-height:540px;display:flex;flex-direction:column;
+          align-items:center;justify-content:center;text-align:center;
+          position:relative;padding:0 var(--pad)}
+
+    .hero-eye{font-size:.56rem;letter-spacing:.46em;text-transform:uppercase;
+              color:var(--dim);margin-bottom:3rem;opacity:0;
+              animation:fadeUp .8s .3s forwards}
+
+    /* PSD-style: outline letters + layered glow haze */
+    .hero-name{
+      font-family:'Barlow Condensed',sans-serif;
+      font-weight:900;
+      font-size:clamp(1.8rem,7.8vw,10.5rem);
+      letter-spacing:.1em;
+      text-transform:uppercase;
+      white-space:nowrap;
+      /* hollow outline */
+      color:transparent;
+      -webkit-text-stroke:1.5px rgba(255,255,255,.88);
+      /* layered glow — "光のモヤ" */
+      text-shadow:
+        0 0 6px  rgba(255,255,255,.95),
+        0 0 14px rgba(255,255,255,.75),
+        0 0 28px rgba(255,255,255,.55),
+        0 0 55px rgba(255,255,255,.32),
+        0 0 90px rgba(255,255,255,.18),
+        0 0 140px rgba(255,255,255,.09);
+      animation:fadeUp .9s .1s forwards, glowPulse 4s 1.2s ease-in-out infinite;
+      opacity:0
+    }
+
+    @keyframes glowPulse{
+      0%,100%{text-shadow:
+        0 0 6px  rgba(255,255,255,.95),0 0 14px rgba(255,255,255,.75),
+        0 0 28px rgba(255,255,255,.55),0 0 55px rgba(255,255,255,.32),
+        0 0 90px rgba(255,255,255,.18),0 0 140px rgba(255,255,255,.09)}
+      50%{text-shadow:
+        0 0 8px  rgba(255,255,255,1),  0 0 18px rgba(255,255,255,.85),
+        0 0 35px rgba(255,255,255,.65),0 0 70px rgba(255,255,255,.42),
+        0 0 110px rgba(255,255,255,.25),0 0 180px rgba(255,255,255,.12)}
+    }
+
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(14px)}
+      to  {opacity:1;transform:none}
+    }
+
+    .hero-rule{width:1px;height:2.6rem;background:var(--dim);margin:2.6rem auto 0;
+               opacity:0;animation:fadeUp .8s .6s forwards}
+    .hero-meta{margin-top:1.2rem;font-size:.56rem;letter-spacing:.3em;
+               text-transform:uppercase;color:var(--dim);
+               opacity:0;animation:fadeUp .8s .75s forwards}
+
+    .hero-cue{position:absolute;bottom:2.4rem;left:50%;transform:translateX(-50%);
+              display:flex;flex-direction:column;align-items:center;gap:.5rem}
+    .hero-cue-bar{width:1px;height:2.6rem;background:var(--dim);
+                  animation:drip 2.4s ease-in-out infinite;transform-origin:top}
+    @keyframes drip{0%,100%{transform:scaleY(1);opacity:.5}50%{transform:scaleY(1.6);opacity:.16}}
+    .hero-cue-label{font-size:.5rem;letter-spacing:.38em;text-transform:uppercase;color:var(--dim)}
+
+    /* ── Marquee ───────────────────────────────────────── */
+
+    /* ── Section header ────────────────────────────────── */
+    .sec-hd{display:flex;justify-content:space-between;align-items:flex-end;
+            padding:5rem var(--pad) 2.5rem}
+    .sec-hd-l{display:flex;flex-direction:column;gap:.5rem}
+    .sec-num{font-size:.54rem;letter-spacing:.38em;color:var(--dim)}
+    .sec-ttl{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+             font-size:clamp(2.2rem,4.5vw,5rem);line-height:1;
+             letter-spacing:-.01em;text-transform:uppercase}
+    .sec-hd-r{max-width:230px;text-align:right;font-size:.68rem;
+              line-height:2;color:var(--dim)}
+
+    /* ══════════════════════════════════════════════════════
+       ART — 3D book / page-flip viewer
+    ══════════════════════════════════════════════════════ */
+    .art-motto{padding:1.6rem var(--pad) 2.8rem;
+               font-size:.58rem;letter-spacing:.38em;text-transform:uppercase;
+               color:rgba(255,255,255,.28);font-weight:300;font-style:italic}
+    .art-credit{padding:.2rem var(--pad) .4rem;display:flex;flex-direction:column;gap:.25rem}
+    .art-credit-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+                      font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+    .art-credit-date{font-size:.52rem;letter-spacing:.22em;color:var(--dim)}
+    .art-hint{padding:0 var(--pad) 1.2rem;font-size:.55rem;letter-spacing:.32em;
+              text-transform:uppercase;color:var(--dim)}
+
+    /* ART index strip */
+    .art-index{overflow-x:auto;display:flex;gap:3px;padding:.8rem var(--pad) 1.8rem;
+               scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+    .art-index::-webkit-scrollbar{height:3px}
+    .art-index::-webkit-scrollbar-track{background:transparent}
+    .art-index::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+    .art-idx-th{flex-shrink:0;width:48px;height:68px;overflow:hidden;cursor:pointer;
+                opacity:.28;transition:opacity .18s}
+    .art-idx-th img{width:100%;height:100%;object-fit:cover;display:block}
+    .art-idx-th.on{opacity:1;outline:1.5px solid rgba(255,255,255,.75);outline-offset:-1px}
+    .art-idx-th:hover:not(.on){opacity:.6}
+
+    #art-book{
+      margin:0 var(--pad);
+      height:78vh;min-height:480px;
+      display:flex;align-items:center;justify-content:center;
+      position:relative;
+    }
+
+    /* Two page slots, absolutely stacked */
+    .book-page{
+      position:absolute;
+      display:flex;align-items:center;justify-content:center;
+      inset:0;
+      pointer-events:none;
+    }
+    .book-page.active{pointer-events:auto}
+
+    .book-page img{
+      max-width:68vw;max-height:72vh;
+      width:auto;height:auto;display:block;
+      box-shadow:0 32px 100px rgba(0,0,0,.8),0 8px 32px rgba(0,0,0,.6);
+      /* page curl edge */
+      border-right:1px solid rgba(255,255,255,.04);
+    }
+
+    /* Nav buttons */
+    .book-nav{
+      position:absolute;top:50%;transform:translateY(-50%);
+      background:none;border:1px solid rgba(255,255,255,.13);
+      color:var(--fg);width:44px;height:56px;font-size:1.2rem;
+      cursor:pointer;opacity:.5;transition:opacity .2s,border-color .2s;
+      z-index:10;
+    }
+    .book-nav:hover{opacity:1;border-color:rgba(255,255,255,.45)}
+    #book-prev{left:0}
+    #book-next{right:0}
+
+    #book-counter{
+      position:absolute;bottom:.8rem;left:50%;transform:translateX(-50%);
+      font-size:.52rem;letter-spacing:.36em;color:var(--dim);
+      pointer-events:none;white-space:nowrap
+    }
+
+    /* Mobile */
+    @media(max-width:860px){
+      #art-book{height:55vh;min-height:340px}
+      .book-page img{max-width:86vw;max-height:52vh}
+    }
+
+    /* ── Lang toggle ───────────────────────────────────── */
+    .lang-btn{background:none;border:1px solid rgba(239,239,239,.22);
+              color:var(--fg);font-family:inherit;font-size:.58rem;
+              letter-spacing:.22em;padding:.35rem .8rem;cursor:pointer;
+              transition:border-color .2s,opacity .2s;text-transform:uppercase}
+    .lang-btn:hover{border-color:rgba(239,239,239,.55)}
+
+    /* ══════════════════════════════════════════════════════
+       WORKS — category tile grid
+    ══════════════════════════════════════════════════════ */
+    .wk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;align-items:start}
+    .wk-tile{position:relative;overflow:hidden;cursor:pointer}
+    .wk-tile--full{grid-column:1 / -1}
+    .wk-tile--cta{background:#0f0f0f;border:1px solid rgba(255,255,255,.07);
+                  display:flex;align-items:center;justify-content:center;
+                  aspect-ratio:3/4;cursor:pointer;transition:border-color .3s,background .3s}
+    .wk-tile--cta:hover{background:#1a1a1a;border-color:rgba(255,255,255,.18)}
+    .wk-cta-inner{padding:2rem;text-align:center}
+    .wk-cta-ttl{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+                font-size:1.6rem;letter-spacing:.1em;text-transform:uppercase;
+                color:#fff;display:block;margin-bottom:1.2rem}
+    .wk-cta-line{width:28px;height:1px;background:rgba(255,255,255,.3);margin:0 auto 1.2rem}
+    .wk-cta-sub{font-size:.55rem;letter-spacing:.22em;color:rgba(255,255,255,.5);
+                line-height:2;text-transform:uppercase}
+    .wk-tile img{width:100%;height:auto;display:block;
+                 transition:transform .48s cubic-bezier(.22,.61,.36,1)}
+    .wk-tile:hover img{transform:scale(1.07)}
+    .wk-tile-info{position:absolute;bottom:0;left:0;right:0;
+                  background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.35) 55%,transparent 100%);
+                  padding:2rem 1.6rem 1.6rem;pointer-events:none}
+    .wk-tile-ttl{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+                 font-size:1.25rem;letter-spacing:.07em;text-transform:uppercase;color:#fff;
+                 transition:transform .28s;display:block}
+    .wk-tile:hover .wk-tile-ttl{transform:translateY(-4px)}
+    .wk-tile-sub{overflow:hidden;max-height:0;opacity:0;
+                 transition:max-height .28s ease,opacity .22s}
+    .wk-tile:hover .wk-tile-sub{max-height:52px;opacity:1}
+    .wk-tile-jp{font-size:.52rem;letter-spacing:.17em;color:rgba(255,255,255,.62);margin-top:.28rem}
+    .wk-tile-n{font-size:.44rem;letter-spacing:.2em;color:rgba(255,255,255,.38);margin-top:.18rem}
+
+    /* ══════════════════════════════════════════════════════
+       LIGHTBOX
+    ══════════════════════════════════════════════════════ */
+    #lb{position:fixed;inset:0;background:rgba(5,5,5,.96);z-index:9000;
+        display:flex;align-items:center;justify-content:center;
+        opacity:0;pointer-events:none;transition:opacity .22s}
+    #lb.open{opacity:1;pointer-events:all}
+
+    .lb-img-wrap{position:relative;max-width:90vw;max-height:90vh;
+                 display:flex;align-items:center;justify-content:center}
+    #lb-img{max-width:90vw;max-height:85vh;width:auto;height:auto;
+            display:block;object-fit:contain;
+            transition:opacity .2s}
+    #lb-img.fading{opacity:0}
+
+    .lb-btn{position:absolute;background:none;border:none;color:var(--fg);
+            opacity:.45;transition:opacity .2s;z-index:1}
+    .lb-btn:hover{opacity:1}
+
+    #lb-close{top:-2.5rem;right:0;font-size:1.6rem;padding:.3rem}
+    #lb-prev{left:-3.5rem;top:50%;transform:translateY(-50%);
+             font-size:2rem;padding:1rem .6rem}
+    #lb-next{right:-3.5rem;top:50%;transform:translateY(-50%);
+             font-size:2rem;padding:1rem .6rem}
+    #lb-counter{position:absolute;bottom:-2.2rem;left:50%;
+                transform:translateX(-50%);font-size:.53rem;
+                letter-spacing:.3em;color:var(--dim);white-space:nowrap}
+    #lb-hint{position:absolute;bottom:-2.2rem;right:0;font-size:.48rem;
+             letter-spacing:.22em;color:#3a3a3a;white-space:nowrap}
+
+    /* ── About ─────────────────────────────────────────── */
+    .about{display:flex;gap:6vw;align-items:flex-start;
+           padding:7rem var(--pad);border-top:1px solid var(--hair);margin-top:5rem}
+    .about-body{flex:1;display:flex;flex-direction:column;gap:1.8rem}
+    .about-lbl{font-size:.54rem;letter-spacing:.42em;text-transform:uppercase;color:var(--dim)}
+    .about-hd{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+              font-size:clamp(2.6rem,5vw,6.5rem);line-height:.9;
+              letter-spacing:-.01em;text-transform:uppercase}
+    .about-role{font-size:.7rem;letter-spacing:.1em;color:var(--dim);
+                margin-top:-.4rem}
+    .about-copy{font-size:.74rem;line-height:2.2;color:#888;max-width:460px}
+    .about-copy p+p{margin-top:1.4rem}
+    .about-photo{flex-shrink:0;width:clamp(180px,22vw,300px)}
+    .about-photo img{width:100%;height:auto;display:block}
+    .about-photo-cap{margin-top:.7rem;font-size:.48rem;letter-spacing:.3em;
+                     text-transform:uppercase;color:var(--dim);text-align:center}
+
+    /* ── Services ─────────────────────────────────────── */
+    .services{padding:4rem var(--pad) 7rem;border-top:1px solid var(--hair)}
+    .services-lbl{font-size:.54rem;letter-spacing:.42em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:3rem}
+    .services-group{margin-bottom:3.5rem}
+    .services-group:last-child{margin-bottom:0}
+    .svc-group-hd{font-size:.52rem;letter-spacing:.4em;text-transform:uppercase;color:var(--dim);
+                  margin-bottom:0;padding-bottom:.9rem;border-bottom:1px solid rgba(255,255,255,.12)}
+    .svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+              border-left:1px solid rgba(255,255,255,.1);border-top:1px solid rgba(255,255,255,.1)}
+    .svc-card{padding:1.6rem 1.5rem;border-right:1px solid rgba(255,255,255,.1);
+              border-bottom:1px solid rgba(255,255,255,.1);transition:background .22s}
+    .svc-card:hover{background:rgba(255,255,255,.03)}
+    .svc-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;
+               letter-spacing:.05em;text-transform:uppercase;margin-bottom:.6rem;color:var(--fg)}
+    .svc-desc{font-size:.64rem;line-height:1.9;color:#666}
+
+    /* ── Contact ───────────────────────────────────────── */
+    .contact{padding:7rem var(--pad);border-top:1px solid var(--hair)}
+    .contact-inner{display:flex;justify-content:space-between;align-items:flex-end;
+                   gap:4rem;flex-wrap:wrap}
+    .contact-lbl{font-size:.54rem;letter-spacing:.42em;text-transform:uppercase;
+                 color:var(--dim);margin-bottom:2rem}
+    .contact-hd{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+                font-size:clamp(2.2rem,5.5vw,6.5rem);line-height:.88;
+                letter-spacing:-.01em;text-transform:uppercase}
+    .contact-links{display:flex;flex-direction:column;gap:0;align-self:flex-end;min-width:260px}
+    .contact-row{display:flex;justify-content:space-between;align-items:center;
+                 padding:1.2rem 0;border-bottom:1px solid var(--hair);
+                 font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;
+                 transition:opacity .2s}
+    .contact-row:hover{opacity:.5}
+    .contact-row-val{font-size:.62rem;letter-spacing:.06em;color:var(--dim);
+                     text-transform:none}
+
+    /* ── Footer ────────────────────────────────────────── */
+    .footer{display:flex;justify-content:space-between;align-items:center;
+            padding:2rem var(--pad);border-top:1px solid var(--hair)}
+    .footer span{font-size:.53rem;letter-spacing:.26em;
+                 text-transform:uppercase;color:var(--dim)}
+
+    /* ── Loading screen ─────────────────────────────────── */
+    #ls{position:fixed;inset:0;background:var(--bg);z-index:99000;
+        display:flex;flex-direction:column;align-items:center;
+        justify-content:center;gap:1.8rem;
+        transition:opacity .9s ease}
+    #ls.out{opacity:0;pointer-events:none}
+    .ls-top{display:flex;flex-direction:column;align-items:center;gap:.6rem}
+    .ls-label{font-size:.52rem;letter-spacing:.55em;text-transform:uppercase;
+              color:#A8001C;font-weight:500}
+    .ls-pct{font-family:'Barlow Condensed',sans-serif;font-weight:900;
+            font-size:clamp(6rem,22vw,22rem);line-height:.9;
+            color:#A8001C;letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+            text-shadow:0 0 20px rgba(168,0,28,.4),0 0 60px rgba(168,0,28,.2),
+                        0 0 120px rgba(168,0,28,.1)}
+    .ls-pct-unit{font-size:.35em;vertical-align:top;opacity:.6;margin-left:.08em}
+    .ls-spin{width:30px;height:30px;border-radius:50%;
+             border:1.5px solid rgba(168,0,28,.2);border-top-color:#A8001C;
+             animation:spin .85s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── Scroll reveal ─────────────────────────────────── */
+    .rev{opacity:0;transform:translateY(20px);
+         transition:opacity .9s ease,transform .9s ease}
+    .rev.in{opacity:1;transform:none}
+
+    /* ══════════════════════════════════════════════════════
+       MOBILE
+    ══════════════════════════════════════════════════════ */
+    @media(max-width:860px){
+      body{cursor:auto} .cd,.cr{display:none}
+      .nav{padding:1.4rem var(--pad)}
+      .nav-links{gap:1.3rem}
+      .hero-name{font-size:clamp(1.6rem,9vw,6rem);letter-spacing:.06em}
+      .sec-hd{flex-direction:column;align-items:flex-start;gap:.8rem;
+              padding:3.5rem var(--pad) 2rem}
+      .sec-hd-r{text-align:left;max-width:none}
+      .wk-grid{grid-template-columns:repeat(2,1fr)}
+      .about{flex-direction:column;gap:2.5rem;padding:5rem var(--pad);margin-top:3rem}
+      .about-photo{width:clamp(110px,30vw,170px)}
+      .contact-inner{flex-direction:column;align-items:flex-start;gap:2.5rem}
+      .contact-links{min-width:unset;width:100%}
+      .footer{flex-direction:column;gap:.6rem;text-align:center}
+      #lb-prev{left:-2rem;font-size:1.5rem}
+      #lb-next{right:-2rem;font-size:1.5rem}
+    }
+    @media(max-width:480px){
+      .hero-name{white-space:normal;text-align:center;line-height:.9}
+      .wk-grid{grid-template-columns:1fr}
+      .nav-links{gap:.9rem}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Loading screen ───────────────────────────────── -->
+  <div id="ls">
+    <div class="ls-top">
+      <span class="ls-label">Loading</span>
+      <div class="ls-pct" id="ls-pct">00<span class="ls-pct-unit">%</span></div>
+    </div>
+    <div class="ls-spin"></div>
+  </div>
+
+  <div class="cd" id="cd"></div>
+  <div class="cr" id="cr"></div>
+
+  <!-- ── Nav ──────────────────────────────────────────── -->
+  <nav class="nav">
+    <a href="#" class="nav-logo">TAKAHASHI LAB.</a>
+    <ul class="nav-links">
+      <li><a href="#art"     data-i18n="nav-art">Art</a></li>
+      <li><a href="#works"   data-i18n="nav-works">Works</a></li>
+      <li><a href="#about"   data-i18n="nav-about">About</a></li>
+      <li><a href="#contact" data-i18n="nav-contact">Contact</a></li>
+    </ul>
+    <button class="lang-btn" id="lang-toggle">JP</button>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════
+       HERO — outline glow centered
+  ══════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <p class="hero-eye" data-i18n="hero-eye">Photographer — Visual Artist</p>
+    <h1 class="hero-name">HAYATO TAKAHASHI</h1>
+    <div class="hero-rule"></div>
+    <p class="hero-meta" data-i18n="hero-meta">TAKAHASHI LAB. &nbsp;/&nbsp; Based in Japan</p>
+    <div class="hero-cue">
+      <span class="hero-cue-bar"></span>
+      <span class="hero-cue-label">Scroll</span>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       ART — stacked overlapping pile
+  ══════════════════════════════════════════════════════ -->
+  <section id="art">
+    <div class="sec-hd rev">
+      <div class="sec-hd-l">
+        <span class="sec-num">01</span>
+        <h2 class="sec-ttl">ART</h2>
+      </div>
+    </div>
+    <div class="art-credit rev">
+      <p class="art-credit-title">I JACK TOKYO</p>
+      <p class="art-credit-date">2025年6月</p>
+    </div>
+    <p class="art-hint rev" data-i18n="art-hint">29 works — click image or use arrows</p>
+    <div id="art-book">
+      <div class="book-page active" id="book-page-a"></div>
+      <div class="book-page"        id="book-page-b"></div>
+      <button class="book-nav" id="book-prev">&#8592;</button>
+      <button class="book-nav" id="book-next">&#8594;</button>
+      <span id="book-counter">01 / 29</span>
+    </div>
+    <div id="art-index" class="art-index"></div>
+    <p class="art-motto rev" data-i18n="art-desc">Art is playfulness.</p>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       WORKS — accordion by category
+  ══════════════════════════════════════════════════════ -->
+  <section id="works">
+    <div class="sec-hd rev">
+      <div class="sec-hd-l">
+        <span class="sec-num">02</span>
+        <h2 class="sec-ttl">WORKS</h2>
+      </div>
+      <p class="sec-hd-r" data-i18n="works-desc">All work organised by category — select a series to view every photograph.</p>
+    </div>
+    <div id="works-list"></div>
+  </section>
+
+  <!-- ── About ─────────────────────────────────────────── -->
+  <section id="about" class="about">
+    <div class="about-body">
+      <span class="about-lbl rev" data-i18n="about-lbl">03 — Profile</span>
+      <h2 class="about-hd rev" data-i18n="about-hd">HAYATO<br>TAKAHASHI</h2>
+      <p class="about-role rev" data-i18n="about-role">Photographer / Visual Creator</p>
+      <div class="about-copy rev" data-i18n="about-copy"><p>Photographer and visual creator based in Tokyo and Kanagawa. After graduating from the Department of Photography at Nihon University College of Art, focuses on portrait, fashion, art, and advertising — handling personal photography and brand visual production.</p><p>With an intuitive grasp of facial expressions and spatial texture, specialises in visual work combining photography, video, and direction. Works span promotional shots, profile photos, artist portraits, fashion shoots, live photography, store and brand visuals, and event coverage for both individuals and companies.</p><p>Also active as an artist through exhibitions and photobook production, pursuing a balance between commercially refined imagery and lasting artistic expression. Currently operating as "TAKAHASHI LAB," with photography and video at the core of all creative work.</p></div>
+    </div>
+    <div class="about-photo rev">
+      <img src="assets/web/1.jpg" alt="Hayato Takahashi">
+      <p class="about-photo-cap">Hayato Takahashi</p>
+    </div>
+  </section>
+
+  <!-- ── Services ─────────────────────────────────────── -->
+  <section id="services" class="services">
+    <span class="services-lbl rev" data-i18n="svc-lbl">Services</span>
+    <div class="services-group rev">
+      <p class="svc-group-hd" id="svc-photo-hd">Photography</p>
+      <div class="svc-grid" id="svc-grid-photo"></div>
+    </div>
+    <div class="services-group rev">
+      <p class="svc-group-hd" id="svc-design-hd">Design &amp; Production</p>
+      <div class="svc-grid" id="svc-grid-design"></div>
+    </div>
+  </section>
+
+  <!-- ── Contact ──────────────────────────────────────── -->
+  <section id="contact" class="contact">
+    <div class="contact-inner">
+      <div class="rev">
+        <p class="contact-lbl" data-i18n="contact-lbl">04 — Contact</p>
+        <h2 class="contact-hd" data-i18n="contact-hd">GET IN<br>TOUCH.</h2>
+      </div>
+      <div class="contact-links rev">
+        <a class="contact-row" href="mailto:takahashilab.create@gmail.com">
+          <span data-i18n="contact-mail">Mail</span>
+          <span class="contact-row-val">takahashilab.create@gmail.com</span>
+        </a>
+        <a class="contact-row" href="https://www.instagram.com/hayato.jpg/" target="_blank" rel="noopener">
+          <span>Instagram</span>
+          <span class="contact-row-val">@hayato.jpg</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ────────────────────────────────────────── -->
+  <footer class="footer">
+    <span>© 2026 TAKAHASHI LAB.</span>
+    <span data-i18n="footer-r">Hayato Takahashi — Photographer</span>
+  </footer>
+
+  <!-- ══════════════════════════════════════════════════════
+       LIGHTBOX DOM
+  ══════════════════════════════════════════════════════ -->
+  <div id="lb" role="dialog" aria-modal="true">
+    <div class="lb-img-wrap">
+      <button class="lb-btn" id="lb-close" aria-label="Close">✕</button>
+      <button class="lb-btn" id="lb-prev"  aria-label="Previous">&#8592;</button>
+      <img id="lb-img" src="" alt="">
+      <button class="lb-btn" id="lb-next"  aria-label="Next">&#8594;</button>
+      <span id="lb-counter"></span>
+      <span id="lb-hint">← swipe / arrow keys →</span>
+    </div>
+  </div>
+
+  <script>
+  /* ════════════════════════════════════════════════════════
+     LOADING SCREEN — percentage counter
+  ════════════════════════════════════════════════════════ */
+  (function() {
+    const screen = document.getElementById('ls');
+    const pctEl  = document.getElementById('ls-pct');
+    const DUR    = 2600; // ms for 0 → 100
+    const start  = performance.now();
+
+    function easeInOut(t) {
+      return t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2;
+    }
+
+    function tick(now) {
+      const t    = Math.min((now - start) / DUR, 1);
+      const pct  = Math.floor(easeInOut(t) * 100);
+      pctEl.firstChild.textContent = String(pct).padStart(2, '0');
+      if (t < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        pctEl.firstChild.textContent = '100';
+        setTimeout(() => {
+          screen.classList.add('out');
+          setTimeout(() => { screen.style.display = 'none'; }, 950);
+        }, 320);
+      }
+    }
+
+    requestAnimationFrame(tick);
+  })();
+
+  /* ════════════════════════════════════════════════════════
+     DATA
+  ════════════════════════════════════════════════════════ */
+
+  // ART images — 28.jpg first, then filename order 1–27
+  const ART = [
+    'assets/web/ART/28.jpg',
+    'assets/web/ART/1.jpg', 'assets/web/ART/2.jpg', 'assets/web/ART/3.jpg', 'assets/web/ART/4.jpg', 'assets/web/ART/5.jpg',
+    'assets/web/ART/6.jpg', 'assets/web/ART/7.jpg', 'assets/web/ART/8.jpg', 'assets/web/ART/9.jpg', 'assets/web/ART/10.jpg',
+    'assets/web/ART/11.jpg','assets/web/ART/12.jpg','assets/web/ART/13.jpg','assets/web/ART/14.jpg','assets/web/ART/15.jpg',
+    'assets/web/ART/16.jpg','assets/web/ART/17.jpg','assets/web/ART/18.jpg','assets/web/ART/19.jpg','assets/web/ART/20.jpg',
+    'assets/web/ART/21.jpg','assets/web/ART/22.jpg','assets/web/ART/22.5.jpg',
+    'assets/web/ART/23.jpg','assets/web/ART/24.jpg','assets/web/ART/25.jpg','assets/web/ART/26.jpg','assets/web/ART/27.jpg'
+  ];
+
+  // Works categories
+  const WORKS = [
+    { title:'VISUAL',           jp:'ビジュアル撮影',       imgs:[
+      'assets/web/works/ビジュアル撮影/ooo-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC0654-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC0681-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC3096.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC4460.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC5048.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC5093-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC5636.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC6117-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC6352.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC7255-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSC8912-Enhanced.jpg',
+      'assets/web/works/ビジュアル撮影/_DSF9064.jpg',
+      'assets/web/works/ビジュアル撮影/_DSF9126.jpg'
+    ]},
+    { title:'PORTRAIT',         jp:'宣材写真',             imgs:[
+      'assets/web/works/宣材写真/_DSC8394.jpg',
+      'assets/web/works/宣材写真/_DSC8402.jpg',
+      'assets/web/works/宣材写真/_DSC8818.jpg',
+      'assets/web/works/宣材写真/_DSF5172.jpg',
+      'assets/web/works/宣材写真/_DSF5200.jpg'
+    ]},
+    { title:'APPAREL FASHION',  jp:'アパレル人物撮影',     imgs:[
+      'assets/web/works/アパレル人物撮影/_DSC5911.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC3738.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC3913.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC3922.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC3945.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC4005.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC4194.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC4973.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC5915.jpg',
+      'assets/web/works/アパレル人物撮影/_DSC6547.jpg',
+      'assets/web/works/アパレル人物撮影/_DSF8354.jpg',
+      'assets/web/works/アパレル人物撮影/_DSF8360.jpg',
+      'assets/web/works/アパレル人物撮影/_DSF8366.jpg'
+    ]},
+    { title:'APPAREL STUDIO',   jp:'アパレルスタジオ撮影', imgs:[
+      'assets/web/works/アパレルスタジオ撮影/_DSF1893.jpg',
+      'assets/web/works/アパレルスタジオ撮影/_DSF1668.jpg',
+      'assets/web/works/アパレルスタジオ撮影/_DSF1676.jpg',
+      'assets/web/works/アパレルスタジオ撮影/_DSF1861.jpg'
+    ]},
+    { title:'APPAREL PRODUCT',  jp:'アパレル物撮り',       grid:true, imgs:[
+      'assets/web/works/アパレル物撮り/_DSF6504.jpg',
+      'assets/web/works/アパレル物撮り/IMG_0908.jpg',
+      'assets/web/works/アパレル物撮り/_DSC5084.jpg',
+      'assets/web/works/アパレル物撮り/_DSC6130.jpg',
+      'assets/web/works/アパレル物撮り/_DSC7824.jpg',
+      'assets/web/works/アパレル物撮り/_DSF6507.jpg',
+      'assets/web/works/アパレル物撮り/_DSF6509.jpg',
+      'assets/web/works/アパレル物撮り/_DSF6555.jpg',
+      'assets/web/works/アパレル物撮り/_DSF6564.jpg',
+      'assets/web/works/Leport 写真/_DSC5922.jpg',
+      'assets/web/works/Leport 写真/_DSC5925.jpg',
+      'assets/web/works/Leport 写真/_DSC5931.jpg',
+      'assets/web/works/Leport 写真/_DSC5938.jpg',
+      'assets/web/works/Leport 写真/_DSC5942.jpg',
+      'assets/web/works/Leport 写真/_DSC5950.jpg',
+      'assets/web/works/Leport 写真/_DSC5953.jpg',
+      'assets/web/works/Leport 写真/_DSC5962.jpg',
+      'assets/web/works/Leport 写真/_DSC5967.jpg',
+      'assets/web/works/Leport 写真/_DSC5969.jpg',
+      'assets/web/works/Leport 写真/_DSC5983.jpg',
+      'assets/web/works/Leport 写真/_DSC5986.jpg',
+      'assets/web/works/Leport 写真/_DSC5991.jpg',
+      'assets/web/works/Leport 写真/_DSC5996.jpg',
+      'assets/web/works/Leport 写真/_DSC6068.jpg',
+      'assets/web/works/Leport 写真/_DSC6070.jpg',
+      'assets/web/works/Leport 写真/_DSC6072.jpg',
+      'assets/web/works/Leport 写真/_DSC6075.jpg',
+      'assets/web/works/Leport 写真/_DSC6077.jpg',
+      'assets/web/works/Leport 写真/_DSC6081.jpg',
+      'assets/web/works/Leport 写真/_DSC6083.jpg',
+      'assets/web/works/Leport 写真/_DSC6086.jpg',
+      'assets/web/works/Leport 写真/_DSC6088.jpg',
+      'assets/web/works/Leport 写真/_DSC6103.jpg',
+      'assets/web/works/Leport 写真/_DSC6107.jpg',
+      'assets/web/works/Leport 写真/_DSC6114.jpg',
+      'assets/web/works/Leport 写真/_DSC6117.jpg',
+      'assets/web/works/Leport 写真/_DSC6120.jpg',
+      'assets/web/works/Leport 写真/_DSC6124.jpg'
+    ]},
+    { title:'ARTIST',           jp:'アーティスト写真',     imgs:[
+      'assets/web/works/アーティスト写真/_DSF0571.jpg',
+      'assets/web/works/アーティスト写真/_DSC2571.jpg',
+      'assets/web/works/アーティスト写真/_DSC2946-Enhanced.jpg',
+      'assets/web/works/アーティスト写真/_DSC4359.jpg',
+      'assets/web/works/アーティスト写真/_DSC5975.jpg',
+      'assets/web/works/アーティスト写真/_DSF0556.jpg',
+      'assets/web/works/アーティスト写真/_DSF1897.jpg'
+    ]},
+    { title:'WEDDING',          jp:'ウェディングフォト',   coverAspect:'2/3', imgs:[
+      'assets/web/works/ウェディングフォト/_DSF5609.jpg',
+      'assets/web/works/ウェディングフォト/_DSF5223.jpg',
+      'assets/web/works/ウェディングフォト/_DSF5278.jpg',
+      'assets/web/works/ウェディングフォト/_DSF5523.jpg',
+      'assets/web/works/ウェディングフォト/_DSF5557.jpg',
+      'assets/web/works/ウェディングフォト/_DSF5562.jpg',
+      'assets/web/works/ウェディングフォト/_DSF5637.jpg'
+    ]},
+    { title:'CEREMONY',         jp:'成人式前撮り',         imgs:[
+      'assets/web/works/成人式前撮り/_DSC0839.jpg',
+      'assets/web/works/成人式前撮り/_DSC1097.jpg',
+      'assets/web/works/成人式前撮り/_DSC1140.jpg',
+      'assets/web/works/成人式前撮り/_DSC7852.jpg',
+      'assets/web/works/成人式前撮り/_DSC7892.jpg',
+      'assets/web/works/成人式前撮り/_DSC8182.jpg',
+      'assets/web/works/成人式前撮り/_DSC9258-Enhanced-SR.jpg',
+      'assets/web/works/成人式前撮り/_DSC9351-Enhanced-SR.jpg'
+    ]},
+    { title:'MATERNITY',        jp:'マタニティフォト',     imgs:[
+      'assets/web/works/マタニティフォト/_DSC5815.jpg',
+      'assets/web/works/マタニティフォト/_DSC5171.jpg',
+      'assets/web/works/マタニティフォト/_DSC5203.jpg',
+      'assets/web/works/マタニティフォト/_DSC5586.jpg',
+      'assets/web/works/マタニティフォト/_DSC5610.jpg',
+      'assets/web/works/マタニティフォト/_DSC5769.jpg',
+      'assets/web/works/マタニティフォト/_DSC5846.jpg'
+    ]},
+    { title:'MODEL',            jp:'モデル撮影',           imgs:[
+      'assets/web/works/モデル撮影/_DSC5346-Enhanced.jpg',
+      'assets/web/works/モデル撮影/_DSC2556.jpg',
+      'assets/web/works/モデル撮影/_DSC2650.jpg',
+      'assets/web/works/モデル撮影/_DSC2709.jpg',
+      'assets/web/works/モデル撮影/_DSC5458.jpg'
+    ]},
+    { title:'LIVE',             jp:'ライブ撮影',           imgs:[
+      'assets/web/works/ライブ撮影/_DSC0917.jpg',
+      'assets/web/works/ライブ撮影/_DSC0743.jpg',
+      'assets/web/works/ライブ撮影/_DSC0871.jpg',
+      'assets/web/works/ライブ撮影/_DSC0895.jpg',
+      'assets/web/works/ライブ撮影/_DSC0938.jpg',
+      'assets/web/works/ライブ撮影/_DSF2434.jpg'
+    ]},
+    { title:'SPORTS',           jp:'スポーツ撮影',         imgs:[
+      'assets/web/works/スポーツ撮影/NIKON Z 50 (4365)-Enhanced-NR.jpg',
+      'assets/web/works/スポーツ撮影/NIKON Z 50 (3969)-Enhanced-NR.jpg',
+      'assets/web/works/スポーツ撮影/NIKON Z 50 (4613)-Enhanced-NR.jpg',
+      'assets/web/works/スポーツ撮影/NIKON Z 50 (480)-Enhanced-NR.jpg'
+    ]},
+    { title:'FILM',             jp:'中判フィルムカメラ',   coverAspect:'3/4', imgs:[
+      'assets/web/works/中判フィルムカメラ/000007-Enhanced.jpg',
+      'assets/web/works/中判フィルムカメラ/000001-Enhanced.jpg',
+      'assets/web/works/中判フィルムカメラ/000002.jpg',
+      'assets/web/works/中判フィルムカメラ/000006-Enhanced.jpg',
+      'assets/web/works/中判フィルムカメラ/000009-Enhanced.jpg'
+    ]},
+    { title:'CANDLE',           jp:'キャンドル',           imgs:[
+      'assets/web/works/キャンドル/_DSF0454.jpg',
+      'assets/web/works/キャンドル/_DSF0505.jpg',
+      'assets/web/works/キャンドル/_DSF0513.jpg',
+      'assets/web/works/キャンドル/_DSF0521.jpg',
+      'assets/web/works/キャンドル/_DSF0524.jpg',
+      'assets/web/works/キャンドル/_DSF0566.jpg',
+      'assets/web/works/キャンドル/_DSF0581.jpg'
+    ]},
+    { title:'SHISHA',           jp:'シーシャ撮影',         coverAspect:'3/4', imgs:[
+      'assets/web/works/シーシャ　撮影/_DSC8831.jpg',
+      'assets/web/works/シーシャ　撮影/_DSC8918.jpg',
+      'assets/web/works/シーシャ　撮影/_DSC9756.jpg',
+      'assets/web/works/シーシャ　撮影/_DSC9916.jpg',
+      'assets/web/works/お酒物撮り/_DSC0376.jpg'
+    ]},
+
+    { title:'PROPERTY',         jp:'物件撮影',             imgs:[
+      'assets/web/works/物件撮影/_DSF6382.jpg',
+      'assets/web/works/物件撮影/_DSF3458.jpg',
+      'assets/web/works/物件撮影/_DSF3462.jpg',
+      'assets/web/works/物件撮影/_DSF3465.jpg'
+    ]},
+    { title:'PROMOTION',        jp:'工事プロモーション',   coverAspect:'3/4', imgs:[
+      'assets/web/works/工事　プロモーション/_DSC2428.jpg',
+      'assets/web/works/工事　プロモーション/_DSC2422.jpg',
+      'assets/web/works/工事　プロモーション/_DSC2491.jpg',
+      'assets/web/works/工事　プロモーション/_DSC2498.jpg'
+    ]},
+    { title:'MOVIE',            jp:'ムービー',             video:'assets/web/movie/running-movie-1080p-crf22.mp4', imgs:[] },
+  ];
+
+  /* ════════════════════════════════════════════════════════
+     LIGHTBOX
+  ════════════════════════════════════════════════════════ */
+  const lb = {
+    el:    document.getElementById('lb'),
+    img:   document.getElementById('lb-img'),
+    ctr:   document.getElementById('lb-counter'),
+    imgs:  [],
+    idx:   0,
+
+    open(imgs, idx) {
+      this.imgs = imgs; this.idx = idx;
+      this.el.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      this.render();
+    },
+    close() {
+      this.el.classList.remove('open');
+      document.body.style.overflow = '';
+    },
+    go(delta) {
+      this.idx = (this.idx + delta + this.imgs.length) % this.imgs.length;
+      this.img.classList.add('fading');
+      setTimeout(() => { this.render(); this.img.classList.remove('fading'); }, 160);
+    },
+    render() {
+      this.img.src = this.imgs[this.idx];
+      this.ctr.textContent =
+        String(this.idx + 1).padStart(2,'0') + ' / ' +
+        String(this.imgs.length).padStart(2,'0');
+    }
+  };
+
+  document.getElementById('lb-close').onclick = () => lb.close();
+  document.getElementById('lb-prev').onclick  = () => lb.go(-1);
+  document.getElementById('lb-next').onclick  = () => lb.go(+1);
+  document.getElementById('lb').onclick = e => { if (e.target === lb.el) lb.close(); };
+
+  document.addEventListener('keydown', e => {
+    if (!lb.el.classList.contains('open')) return;
+    if (e.key === 'Escape')     lb.close();
+    if (e.key === 'ArrowLeft')  lb.go(-1);
+    if (e.key === 'ArrowRight') lb.go(+1);
+  });
+
+  // Touch swipe
+  let tsX = 0;
+  lb.el.addEventListener('touchstart', e => { tsX = e.touches[0].clientX; }, {passive:true});
+  lb.el.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - tsX;
+    if (Math.abs(dx) > 48) lb.go(dx > 0 ? -1 : +1);
+  });
+
+  /* ════════════════════════════════════════════════════════
+     ART BOOK VIEWER — 3D page flip
+  ════════════════════════════════════════════════════════ */
+  (function initBook() {
+    const pageA  = document.getElementById('book-page-a');
+    const pageB  = document.getElementById('book-page-b');
+    const prevBtn= document.getElementById('book-prev');
+    const nextBtn= document.getElementById('book-next');
+    const ctr    = document.getElementById('book-counter');
+
+    let idx      = 0;
+    let active   = 'a'; // which page slot is currently showing
+    let flipping = false;
+
+    // Create img elements for each page slot
+    const imgA = document.createElement('img'); imgA.alt=''; pageA.appendChild(imgA);
+    const imgB = document.createElement('img'); imgB.alt=''; pageB.appendChild(imgB);
+
+    function img(slot) { return slot==='a' ? imgA : imgB; }
+    function page(slot){ return slot==='a' ? pageA: pageB; }
+    function otherSlot(){ return active==='a' ? 'b' : 'a'; }
+
+    let syncIndex = () => {};
+
+    function updateCounter(){
+      ctr.textContent = String(idx+1).padStart(2,'0') + ' / ' + String(ART.length).padStart(2,'0');
+      syncIndex();
+    }
+
+    // Show first image immediately
+    imgA.src = ART[0];
+    imgA.loading = 'lazy';
+    pageA.classList.add('active');
+    pageA.style.transform = 'none';
+    pageA.style.opacity   = '1';
+    updateCounter();
+
+    function flip(dir) {
+      if (flipping) return;
+      flipping = true;
+
+      const newIdx  = (idx + dir + ART.length) % ART.length;
+      const next    = otherSlot();
+      const nextPg  = page(next);
+      const nextImg = img(next);
+      const curPg   = page(active);
+
+      // rAF 1 — commit the hidden/start-position state for the inactive slot.
+      // Style changes here (no transition, opacity 0) are painted as one frame
+      // BEFORE rAF 2 runs, so the old image is never visible during the swap.
+      requestAnimationFrame(() => {
+        nextPg.style.transition = 'none';
+        nextPg.style.opacity    = '0';
+        nextPg.style.transform  = dir > 0
+          ? 'perspective(1200px) rotateY(32deg) scale(.9) translateX(3%)'
+          : 'perspective(1200px) rotateY(-32deg) scale(.9) translateX(-3%)';
+
+        // Load new image now — slot is already invisible
+        nextImg.src     = ART[newIdx];
+        nextImg.loading = 'eager';
+
+        // rAF 2 — the hidden state is now committed; start both animations
+        requestAnimationFrame(() => {
+          curPg.style.transition = 'transform .38s cubic-bezier(.55,.05,.68,.19), opacity .22s';
+          curPg.style.transform  = dir > 0
+            ? 'perspective(1200px) rotateY(-32deg) scale(.9) translateX(-3%)'
+            : 'perspective(1200px) rotateY(32deg) scale(.9) translateX(3%)';
+          curPg.style.opacity    = '0';
+
+          nextPg.style.transition = 'transform .38s .04s cubic-bezier(.22,.61,.36,1), opacity .24s .03s';
+          nextPg.style.transform  = 'perspective(1200px) rotateY(0deg) scale(1) translateX(0)';
+          nextPg.style.opacity    = '1';
+
+          idx    = newIdx;
+          active = next;
+          page(active).classList.add('active');
+          page(otherSlot()).classList.remove('active');
+          updateCounter();
+
+          setTimeout(() => { flipping = false; }, 460);
+        });
+      });
+    }
+
+    prevBtn.addEventListener('click', () => flip(-1));
+    nextBtn.addEventListener('click', () => flip(+1));
+
+    // Jump to index i instantly (no flip animation)
+    function jumpTo(i) {
+      if (flipping || i === idx) return;
+      flipping = true;
+      const next    = otherSlot();
+      const nextPg  = page(next);
+      const nextImg = img(next);
+      const curPg   = page(active);
+      nextPg.style.transition = 'none';
+      nextPg.style.opacity    = '0';
+      nextPg.style.transform  = 'none';
+      nextImg.src     = ART[i];
+      nextImg.loading = 'eager';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          curPg.style.transition  = 'opacity .15s';
+          curPg.style.opacity     = '0';
+          nextPg.style.transition = 'opacity .15s';
+          nextPg.style.opacity    = '1';
+          nextPg.style.transform  = 'perspective(1200px) rotateY(0deg) scale(1) translateX(0)';
+          idx    = i;
+          active = next;
+          page(active).classList.add('active');
+          page(otherSlot()).classList.remove('active');
+          updateCounter();
+          setTimeout(() => { flipping = false; }, 200);
+        });
+      });
+    }
+
+    // Build horizontal index strip — uses ART/thumbs/ (160px, ~10KB each)
+    (function buildArtIndex() {
+      const strip = document.getElementById('art-index');
+      const thumbEls = [];
+
+      ART.forEach((src, i) => {
+        const th = document.createElement('div');
+        th.className = 'art-idx-th' + (i === 0 ? ' on' : '');
+        const im = document.createElement('img');
+        im.src = src.replace('assets/web/ART/', 'assets/web/ART/thumbs/');
+        im.alt = '';
+        th.appendChild(im);
+        th.addEventListener('click', () => jumpTo(i));
+        strip.appendChild(th);
+        thumbEls.push(th);
+      });
+
+      syncIndex = function() {
+        thumbEls.forEach((th, i) => th.classList.toggle('on', i === idx));
+        const activeTh = thumbEls[idx];
+        if (!activeTh) return;
+        const sl = strip.scrollLeft, sw = strip.offsetWidth;
+        const tl = activeTh.offsetLeft, tw = activeTh.offsetWidth;
+        if (tl < sl) {
+          strip.scrollTo({ left: tl - 16, behavior: 'smooth' });
+        } else if (tl + tw > sl + sw) {
+          strip.scrollTo({ left: tl + tw - sw + 16, behavior: 'smooth' });
+        }
+      };
+    })();
+
+    // Click image → open lightbox
+    [pageA, pageB].forEach(pg => {
+      pg.addEventListener('click', e => {
+        if (e.target.tagName === 'IMG') lb.open(ART, idx);
+      });
+    });
+
+    // Keyboard arrows
+    document.addEventListener('keydown', e => {
+      if (document.getElementById('lb').classList.contains('open')) return;
+      if (e.key === 'ArrowRight') flip(+1);
+      if (e.key === 'ArrowLeft')  flip(-1);
+    });
+
+    // Touch swipe
+    let tx = 0;
+    const book = document.getElementById('art-book');
+    book.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+    book.addEventListener('touchend',   e => {
+      const dx = e.changedTouches[0].clientX - tx;
+      if (Math.abs(dx) > 44) flip(dx > 0 ? -1 : +1);
+    });
+  })();
+
+  /* ════════════════════════════════════════════════════════
+     BUILD WORKS — category tile grid, click → category page
+  ════════════════════════════════════════════════════════ */
+  (function buildWorks() {
+    const grid = document.createElement('div');
+    grid.className = 'wk-grid';
+
+    WORKS.forEach((cat) => {
+      const tile = document.createElement('div');
+      tile.className = 'wk-tile rev';
+
+      let coverEl;
+      if (cat.video) {
+        tile.classList.add('wk-tile--full');
+        coverEl = document.createElement('video');
+        coverEl.src = cat.video;
+        coverEl.autoplay = true;
+        coverEl.muted = true;
+        coverEl.loop = true;
+        coverEl.playsInline = true;
+        coverEl.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+        tile.style.aspectRatio = '16/9';
+      } else {
+        coverEl = document.createElement('img');
+        coverEl.src = cat.imgs[0]; coverEl.alt = ''; coverEl.loading = 'lazy';
+        if (cat.coverAspect) {
+          tile.style.aspectRatio = cat.coverAspect;
+          coverEl.style.height = '100%';
+          coverEl.style.objectFit = 'cover';
+        }
+      }
+
+      const info = document.createElement('div');
+      info.className = 'wk-tile-info';
+      info.innerHTML =
+        `<span class="wk-tile-ttl">${cat.title}</span>` +
+        `<div class="wk-tile-sub">` +
+          `<p class="wk-tile-jp">${cat.jp}</p>` +
+          (cat.video ? '' : `<p class="wk-tile-n">${String(cat.imgs.length).padStart(2,'0')} photos</p>`) +
+        `</div>`;
+
+      tile.appendChild(coverEl);
+      tile.appendChild(info);
+      tile.addEventListener('click', () => {
+        window.location.href = 'category.html?cat=' + encodeURIComponent(cat.title);
+      });
+
+      grid.appendChild(tile);
+    });
+
+    // YOUR PROJECT — CTA tile (inserted before the full-width MOVIE tile)
+    const ctaTile = document.createElement('div');
+    ctaTile.className = 'wk-tile wk-tile--cta rev';
+    ctaTile.innerHTML =
+      `<div class="wk-cta-inner">` +
+        `<span class="wk-cta-ttl">YOUR PROJECT</span>` +
+        `<div class="wk-cta-line"></div>` +
+        `<p class="wk-cta-sub">次は、あなたの作品です。</p>` +
+      `</div>`;
+    ctaTile.addEventListener('click', () => {
+      window.location.href = 'project.html';
+    });
+    grid.insertBefore(ctaTile, grid.lastElementChild);
+
+    document.getElementById('works-list').appendChild(grid);
+  })();
+
+  /* ════════════════════════════════════════════════════════
+     Services grid
+  ════════════════════════════════════════════════════════ */
+  const SERVICES = {
+    en:{
+      photoHd:'Photography',
+      designHd:'Design & Production',
+      photo:[
+        {t:'Portrait',        d:'Profile shots, promotional photos, artist photos, model shoots, personal photography, SNS photos, audition photos.'},
+        {t:'Fashion',         d:'Lookbooks, vintage styling, brand visuals, costume photography, EC product shots, collection photography, styled shoots.'},
+        {t:'Artist Photography', d:'Artist photos and promotional visuals for musicians, actors, dancers, models, and creators.'},
+        {t:'Advertising & Brand', d:'Key visuals conveying brand world, SNS advertising photos, POPUP announcement visuals, product and service image photography.'},
+        {t:'Event Photography',d:'Documentation of corporate events, exhibitions, POPUPs, parties, receptions, seminars, live events, and store events.'},
+        {t:'Live Photography', d:'Live performances, artist stages, stage productions, and live house photography.'},
+        {t:'SNS Visual Direction',d:'Instagram posts, reels, profiles, post tone, photo arrangement, and brand world organisation.'},
+      ],
+      design:[
+        {t:'Logo Design',     d:'Logo design for shops, brands, events, and projects.'},
+        {t:'Menu Design',     d:'Menu design for restaurants, POPUPs, cafés, and bars.'},
+        {t:'Flyer & Poster',  d:'Visual production for event announcements, exhibition announcements, POPUP announcements, and campaigns.'},
+        {t:'SNS Post Images', d:'Instagram posts, stories, announcement images, campaign images, and thumbnail creation.'},
+        {t:'Proposals & Pitch Decks', d:'Brand proposal materials, photography plans, estimate documents, concept materials, and presentation materials.'},
+        {t:'Web Visual Production', d:'Portfolio sites, brand sites, landing pages, and SNS link images.'},
+      ]
+    },
+    ja:{
+      photoHd:'写真撮影',
+      designHd:'デザイン・制作',
+      photo:[
+        {t:'ポートレート撮影',   d:'プロフィール写真、宣材写真、アーティスト写真、モデル撮影、個人撮影、SNS用写真、オーディション用写真など。'},
+        {t:'ファッション撮影',   d:'ルックブック、古着スタイリング、ブランドビジュアル、衣装撮影、EC用写真、コレクション撮影、スタイリング込みの撮影。'},
+        {t:'アーティスト写真',   d:'ミュージシャン、俳優、ダンサー、モデル、クリエイター向けのアーティスト写真・宣材ビジュアル制作。'},
+        {t:'広告・ブランドビジュアル', d:'ブランドの世界観を伝えるキービジュアル、SNS広告用写真、POPUP告知ビジュアル、商品やサービスのイメージ撮影。'},
+        {t:'イベント撮影',       d:'企業イベント、展示会、POPUP、パーティー、レセプション、セミナー、ライブイベント、店舗イベントの記録撮影。'},
+        {t:'ライブ撮影',         d:'ライブパフォーマンス、アーティストステージ、舞台撮影、ライブハウスでの撮影。'},
+        {t:'SNSビジュアル設計',  d:'Instagram投稿、リール、プロフィール、投稿のトーン、写真の並び、世界観の整理。'},
+      ],
+      design:[
+        {t:'ロゴ制作',           d:'店舗、ブランド、イベント、プロジェクト用のロゴデザイン。'},
+        {t:'メニュー表制作',     d:'飲食店、POPUP、カフェ、バー向けのメニュー表デザイン。'},
+        {t:'フライヤー・ポスター制作', d:'イベント告知、展示告知、POPUP告知、キャンペーン用ビジュアル制作。'},
+        {t:'SNS投稿画像制作',    d:'Instagram投稿、ストーリー、告知画像、キャンペーン画像、サムネイル制作。'},
+        {t:'営業資料・企画書制作', d:'ブランド提案資料、撮影プラン、見積もり資料、コンセプト資料、プレゼン資料の制作。'},
+        {t:'Web用ビジュアル制作', d:'ポートフォリオサイト、ブランドサイト、LP、SNSリンク用画像など。'},
+      ]
+    }
+  };
+
+  function renderServices(lang) {
+    const d = SERVICES[lang];
+    ['photo','design'].forEach(key => {
+      const grid = document.getElementById('svc-grid-'+key);
+      if (!grid) return;
+      grid.innerHTML = d[key].map(s =>
+        `<div class="svc-card"><p class="svc-title">${s.t}</p><p class="svc-desc">${s.d}</p></div>`
+      ).join('');
+    });
+    const ph = document.getElementById('svc-photo-hd');
+    const dh = document.getElementById('svc-design-hd');
+    if (ph) ph.textContent = d.photoHd;
+    if (dh) dh.textContent = d.designHd;
+  }
+
+  /* ════════════════════════════════════════════════════════
+     I18N — English / Japanese toggle
+  ════════════════════════════════════════════════════════ */
+  const I18N = {
+    en:{
+      'nav-art':    'Art',
+      'nav-works':  'Works',
+      'nav-about':  'About',
+      'nav-contact':'Contact',
+      'hero-eye':   'Photographer — Visual Artist',
+      'hero-meta':  'TAKAHASHI LAB.  /  Based in Japan',
+      'art-desc':   'Art is playfulness.',
+      'art-hint':   '29 works — click image or use arrows',
+      'works-desc': '19 categories — click to view the full series.',
+      'about-lbl':  '03 — Profile',
+      'about-hd':   'HAYATO<br>TAKAHASHI',
+      'about-role': 'Photographer / Visual Creator',
+      'about-copy': '<p>Photographer and visual creator based in Tokyo and Kanagawa. After graduating from the Department of Photography at Nihon University College of Art, focuses on portrait, fashion, art, and advertising — handling personal photography and brand visual production.</p><p>With an intuitive grasp of facial expressions and spatial texture, specialises in visual work combining photography, video, and direction. Works span promotional shots, profile photos, artist portraits, fashion shoots, live photography, store and brand visuals, and event coverage for both individuals and companies.</p><p>Also active as an artist through exhibitions and photobook production, pursuing a balance between commercially refined imagery and lasting artistic expression. Currently operating as "TAKAHASHI LAB," with photography and video at the core of all creative work.</p>',
+      'svc-lbl':    'Services',
+      'contact-lbl':'04 — Contact',
+      'contact-hd': 'GET IN<br>TOUCH.',
+      'contact-mail':'Mail',
+      'footer-r':   'Hayato Takahashi — Photographer',
+    },
+    ja:{
+      'nav-art':    'アート',
+      'nav-works':  '作品',
+      'nav-about':  '概要',
+      'nav-contact':'コンタクト',
+      'hero-eye':   'フォトグラファー — ビジュアルアーティスト',
+      'hero-meta':  'TAKAHASHI LAB.  /  日本在住',
+      'art-desc':   '芸術は遊び心だ',
+      'art-hint':   '29作品 — 画像をクリックまたは矢印キーで閲覧',
+      'works-desc': '19カテゴリ — クリックで全作品を表示。',
+      'about-lbl':  '03 — プロフィール',
+      'about-hd':   '高橋 隼人',
+      'about-role': '写真家 / ビジュアルクリエイター',
+      'about-copy': '<p>東京、神奈川を拠点に活動する写真家・ビジュアルクリエイター。日本大学藝術学部写真学科を卒業後、ポートレート、ファッション、アート、広告領域を中心に、人物撮影およびブランドビジュアルの制作を行う。</p><p>人物の表情、空間の質感を感覚的に捉えながら、写真・映像・演出を組み合わせたビジュアル表現を得意とする。宣材写真、プロフィール写真、アーティスト写真、ファッション撮影、ライブ撮影、店舗・ブランド撮影、イベント撮影など、個人・法人問わず幅広い撮影を手掛ける。</p><p>また、作家としても展示や写真集制作を行い、商業的な用途に必要な綺麗に見せる表現と、作品としての印象に残る表現の両立を目指している。現在は「TAKAHASHI LAB」として、写真・映像を軸に活動している。</p>',
+      'svc-lbl':    'サービス',
+      'contact-lbl':'04 — コンタクト',
+      'contact-hd': 'お問い合わせ',
+      'contact-mail':'メール',
+      'footer-r':   '高橋颯人 — フォトグラファー',
+    }
+  };
+
+  let currentLang = 'en';
+  const langBtn = document.getElementById('lang-toggle');
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang === 'ja' ? 'ja' : 'en';
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const t = I18N[lang][el.dataset.i18n];
+      if (t !== undefined) el.innerHTML = t;
+    });
+    renderServices(lang);
+    langBtn.textContent = lang === 'en' ? 'JP' : 'EN';
+    try { localStorage.setItem('tl_lang', lang); } catch(e) {}
+  }
+
+  langBtn.addEventListener('click', () => setLang(currentLang === 'en' ? 'ja' : 'en'));
+
+  // Restore saved preference or render services for default EN
+  try {
+    const saved = localStorage.getItem('tl_lang');
+    if (saved === 'ja') setLang('ja');
+    else renderServices('en');
+  } catch(e) { renderServices('en'); }
+
+  /* ════════════════════════════════════════════════════════
+     CURSOR
+  ════════════════════════════════════════════════════════ */
+  const cdEl = document.getElementById('cd');
+  const crEl = document.getElementById('cr');
+  let mx=0,my=0,rx=0,ry=0;
+
+  document.addEventListener('mousemove', e => {
+    mx=e.clientX; my=e.clientY;
+    cdEl.style.left=mx+'px'; cdEl.style.top=my+'px';
+  });
+  (function tick(){
+    rx+=(mx-rx)*.14; ry+=(my-ry)*.14;
+    crEl.style.left=rx+'px'; crEl.style.top=ry+'px';
+    requestAnimationFrame(tick);
+  })();
+  document.querySelectorAll('a,.art-thumb,.wk-tile').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cdEl.classList.add('on');crEl.classList.add('on')});
+    el.addEventListener('mouseleave',()=>{cdEl.classList.remove('on');crEl.classList.remove('on')});
+  });
+
+  /* ════════════════════════════════════════════════════════
+     SCROLL REVEAL
+  ════════════════════════════════════════════════════════ */
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:.06, rootMargin:'0px 0px -20px 0px'});
+  document.querySelectorAll('.rev').forEach(el => io.observe(el));
+  </script>
+</body>
+</html>
