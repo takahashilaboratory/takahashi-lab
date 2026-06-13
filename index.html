@@ -405,7 +405,7 @@
     <p class="hero-eye" data-i18n="hero-eye">Photographer — Visual Artist</p>
     <h1 class="hero-name">HAYATO TAKAHASHI</h1>
     <div class="hero-rule"></div>
-    <p class="hero-meta" data-i18n="hero-meta">TAKAHASHI LAB. &nbsp;/&nbsp; Based in Japan</p>
+    <p class="hero-meta" data-i18n="hero-meta">TAKAHASHI LAB.</p>
     <div class="hero-cue">
       <span class="hero-cue-bar"></span>
       <span class="hero-cue-label">Scroll</span>
@@ -1133,7 +1133,7 @@
       'nav-about':  'About',
       'nav-contact':'Contact',
       'hero-eye':   'Photographer — Visual Artist',
-      'hero-meta':  'TAKAHASHI LAB.  /  Based in Japan',
+      'hero-meta':  'TAKAHASHI LAB.',
       'art-desc':   'Art is playfulness.',
       'art-hint':   '29 works — click image or use arrows',
       'works-desc': '19 categories — click to view the full series.',
@@ -1153,7 +1153,7 @@
       'nav-about':  '概要',
       'nav-contact':'コンタクト',
       'hero-eye':   'フォトグラファー — ビジュアルアーティスト',
-      'hero-meta':  'TAKAHASHI LAB.  /  日本在住',
+      'hero-meta':  'TAKAHASHI LAB.',
       'art-desc':   '芸術は遊び心だ',
       'art-hint':   '29作品 — 画像をクリックまたは矢印キーで閲覧',
       'works-desc': '19カテゴリ — クリックで全作品を表示。',
@@ -1186,12 +1186,12 @@
 
   langBtn.addEventListener('click', () => setLang(currentLang === 'en' ? 'ja' : 'en'));
 
-  // Restore saved preference or render services for default EN
+  // Default to JP; respect saved preference if user previously chose EN
   try {
     const saved = localStorage.getItem('tl_lang');
-    if (saved === 'ja') setLang('ja');
-    else renderServices('en');
-  } catch(e) { renderServices('en'); }
+    if (saved === 'en') setLang('en');
+    else setLang('ja');
+  } catch(e) { setLang('ja'); }
 
   /* ════════════════════════════════════════════════════════
      CURSOR
