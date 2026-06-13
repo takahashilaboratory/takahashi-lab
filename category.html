@@ -463,8 +463,9 @@
   langBtn.addEventListener('click', () => setLang(currentLang === 'en' ? 'ja' : 'en'));
   try {
     const saved = localStorage.getItem('tl_lang');
-    if (saved === 'ja') setLang('ja');
-  } catch(e) {}
+    if (saved === 'en') setLang('en');
+    else setLang('ja');
+  } catch(e) { setLang('ja'); }
 
   /* ── Cursor ─────────────────────────────────────────────── */
   const cdEl = document.getElementById('cd');
