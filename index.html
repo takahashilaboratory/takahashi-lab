@@ -47,6 +47,12 @@
     .nav-links a{font-size:.62rem;font-weight:500;letter-spacing:.22em;
                  text-transform:uppercase;opacity:.7;transition:opacity .2s}
     .nav-links a:hover{opacity:1}
+    /* hamburger (mobile only — hidden on desktop) */
+    .nav-burger{display:none;flex-direction:column;justify-content:center;gap:5px;
+                background:none;border:0;cursor:pointer;width:34px;height:34px;padding:6px}
+    .nav-burger span{display:block;width:22px;height:1.5px;background:var(--fg);
+                     transition:transform .3s ease,opacity .2s ease}
+    .m-menu{display:none}
 
     /* ══════════════════════════════════════════════════════
        HERO — "HAYATO TAKAHASHI" centered + glow
@@ -351,7 +357,21 @@
     @media(max-width:860px){
       body{cursor:auto} .cd,.cr{display:none}
       .nav{padding:1.4rem var(--pad)}
-      .nav-links{gap:1.3rem}
+      .nav-links{display:none}
+      .lang-btn{margin-left:auto;margin-right:.1rem}
+      .nav-burger{display:flex}
+      body.menu-open{overflow:hidden}
+      .m-menu{display:flex;position:fixed;inset:0;z-index:790;
+              background:rgba(8,8,8,.97);align-items:center;justify-content:center;
+              opacity:0;pointer-events:none;transition:opacity .35s ease}
+      body.menu-open .m-menu{opacity:1;pointer-events:auto}
+      .m-menu-links{list-style:none;display:flex;flex-direction:column;gap:2.4rem;text-align:center}
+      .m-menu-links a{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+                      font-size:2rem;letter-spacing:.14em;text-transform:uppercase;
+                      color:var(--fg);opacity:.9}
+      body.menu-open .nav-burger span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+      body.menu-open .nav-burger span:nth-child(2){opacity:0}
+      body.menu-open .nav-burger span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
       .hero-name{font-size:clamp(1.6rem,9vw,6rem);letter-spacing:.06em}
       .sec-hd{flex-direction:column;align-items:flex-start;gap:.8rem;
               padding:3.5rem var(--pad) 2rem}
@@ -399,7 +419,18 @@
       <li><a href="#contact" data-i18n="nav-contact">Contact</a></li>
     </ul>
     <button class="lang-btn" id="lang-toggle">JP</button>
+    <button class="nav-burger" id="nav-burger" aria-label="Menu"><span></span><span></span><span></span></button>
   </nav>
+
+  <!-- Mobile menu overlay -->
+  <div class="m-menu" id="m-menu">
+    <ul class="m-menu-links">
+      <li><a href="#art"     data-i18n="nav-art">Art</a></li>
+      <li><a href="#works"   data-i18n="nav-works">Works</a></li>
+      <li><a href="#about"   data-i18n="nav-about">About</a></li>
+      <li><a href="#contact" data-i18n="nav-contact">Contact</a></li>
+    </ul>
+  </div>
 
   <!-- ══════════════════════════════════════════════════════
        HERO — outline glow centered
@@ -1189,6 +1220,19 @@
   }
 
   langBtn.addEventListener('click', () => setLang(currentLang === 'en' ? 'ja' : 'en'));
+
+  // Mobile hamburger menu
+  const navBurger = document.getElementById('nav-burger');
+  const mMenu     = document.getElementById('m-menu');
+  if (navBurger && mMenu) {
+    navBurger.addEventListener('click', () => document.body.classList.toggle('menu-open'));
+    mMenu.querySelectorAll('a').forEach(a =>
+      a.addEventListener('click', () => document.body.classList.remove('menu-open')));
+    mMenu.addEventListener('click', e => {
+      if (e.target === mMenu || e.target.classList.contains('m-menu-links'))
+        document.body.classList.remove('menu-open');
+    });
+  }
 
   // Default to JP; respect saved preference if user previously chose EN
   try {
