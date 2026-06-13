@@ -70,27 +70,23 @@
       /* hollow outline */
       color:transparent;
       -webkit-text-stroke:1.5px rgba(255,255,255,.88);
-      /* layered glow — "光のモヤ" */
+      /* layered glow — "光のモヤ"（控えめ版） */
       text-shadow:
-        0 0 6px  rgba(255,255,255,.95),
-        0 0 14px rgba(255,255,255,.75),
-        0 0 28px rgba(255,255,255,.55),
-        0 0 55px rgba(255,255,255,.32),
-        0 0 90px rgba(255,255,255,.18),
-        0 0 140px rgba(255,255,255,.09);
+        0 0 5px  rgba(255,255,255,.55),
+        0 0 12px rgba(255,255,255,.34),
+        0 0 24px rgba(255,255,255,.2),
+        0 0 45px rgba(255,255,255,.1);
       animation:fadeUp .9s .1s forwards, glowPulse 4s 1.2s ease-in-out infinite;
       opacity:0
     }
 
     @keyframes glowPulse{
       0%,100%{text-shadow:
-        0 0 6px  rgba(255,255,255,.95),0 0 14px rgba(255,255,255,.75),
-        0 0 28px rgba(255,255,255,.55),0 0 55px rgba(255,255,255,.32),
-        0 0 90px rgba(255,255,255,.18),0 0 140px rgba(255,255,255,.09)}
+        0 0 5px  rgba(255,255,255,.55),0 0 12px rgba(255,255,255,.34),
+        0 0 24px rgba(255,255,255,.2),0 0 45px rgba(255,255,255,.1)}
       50%{text-shadow:
-        0 0 8px  rgba(255,255,255,1),  0 0 18px rgba(255,255,255,.85),
-        0 0 35px rgba(255,255,255,.65),0 0 70px rgba(255,255,255,.42),
-        0 0 110px rgba(255,255,255,.25),0 0 180px rgba(255,255,255,.12)}
+        0 0 7px  rgba(255,255,255,.68),0 0 16px rgba(255,255,255,.44),
+        0 0 30px rgba(255,255,255,.27),0 0 55px rgba(255,255,255,.14)}
     }
 
     @keyframes fadeUp{
