@@ -580,63 +580,12 @@
 
 <!-- ─────────────────────────── VIDEO ─────────────────────────── -->
 <div class="video-section" id="video">
-  <h2>MOVIE — Video Encode Options</h2>
-  <p style="font-size:.78rem;color:var(--dim);margin-bottom:1.4rem;line-height:1.7">
-    The original MOV is <strong style="color:rgba(255,255,255,.5)">703 MB</strong>, PCM audio, 66 Mbps.
-    Three encode options are shown below — BT.709 color is preserved in all three.
-    Please choose which quality/size trade-off is acceptable for the portfolio.
-  </p>
-  <div class="video-options">
-
-    <div class="vid-card">
-      <h3>Option A — 4K CRF 16 <span style="font-size:.65rem;color:var(--warn)">(current)</span></h3>
-      <video controls preload="metadata">
-        <source src="assets/web/movie/running-movie.mp4" type="video/mp4">
-      </video>
-      <div class="meta">
-        <div><b>File size:</b> 583 MB</div>
-        <div><b>Resolution:</b> 3840 × 2160 (4K)</div>
-        <div><b>Bitrate:</b> ~56 Mbps</div>
-        <div><b>Audio:</b> AAC 320k</div>
-        <div style="margin-top:.4rem;color:rgba(255,100,100,.7)">⚠ Too large for web — would take 1–2 min to buffer on average connection</div>
-      </div>
+  <h2>MOVIE</h2>
+  <div style="max-width:960px;margin:0 auto">
+    <div style="position:relative;padding-top:56.25%;">
+      <iframe src="https://player.mediadelivery.net/embed/686041/295707ee-1cd3-4e2a-9a3c-6b60380f7372?autoplay=true&loop=true&muted=true&preload=true&responsive=true" loading="lazy" style="border:0;position:absolute;top:0;height:100%;width:100%;" allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;fullscreen;" allowfullscreen="true"></iframe>
     </div>
-
-    <div class="vid-card">
-      <h3>Option B — 4K CRF 23</h3>
-      <video controls preload="metadata">
-        <source src="assets/web/movie/running-movie-crf23.mp4" type="video/mp4">
-      </video>
-      <div class="meta">
-        <div><b>File size:</b> 195 MB</div>
-        <div><b>Resolution:</b> 3840 × 2160 (4K)</div>
-        <div><b>Bitrate:</b> ~18 Mbps</div>
-        <div><b>Audio:</b> AAC 256k</div>
-        <div style="margin-top:.4rem;color:rgba(255,200,50,.7)">△ Better, but still heavy — good if targeting high-speed connections only</div>
-      </div>
-    </div>
-
-    <div class="vid-card">
-      <h3>Option C — 1080p CRF 18 <span style="font-size:.65rem;color:var(--ok)">(recommended)</span></h3>
-      <video controls preload="metadata">
-        <source src="assets/web/movie/running-movie-1080p-crf18.mp4" type="video/mp4">
-      </video>
-      <div class="meta">
-        <div><b>File size:</b> 123 MB</div>
-        <div><b>Resolution:</b> 1920 × 1080</div>
-        <div><b>Bitrate:</b> ~11 Mbps</div>
-        <div><b>Audio:</b> AAC 256k</div>
-        <div style="margin-top:.4rem;color:rgba(46,204,113,.7)">✓ 1080p is sufficient for portfolio tiles — indistinguishable from 4K at typical screen sizes</div>
-      </div>
-    </div>
-
   </div>
-  <p class="vid-note">
-    Note: The video is 86 seconds long. For an autoplay loop tile in the WORKS grid,
-    even 123 MB may feel slow on mobile. If you'd like to trim it to a shorter clip
-    (e.g., 15–30 sec highlight), the file size would drop proportionally.
-    Original MOV stays untouched either way.
-  </p>
 </div>
 
 

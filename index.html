@@ -799,8 +799,23 @@
       'assets/web/works/工事　プロモーション/_DSC2491.jpg',
       'assets/web/works/工事　プロモーション/_DSC2498.jpg'
     ]},
-    { title:'MOVIE',            jp:'ムービー',             video:'assets/web/movie/running-movie-1080p-crf22.mp4', imgs:[] },
+    { title:'MOVIE',            jp:'ムービー',             embed:true, imgs:[] },
   ];
+
+  const BUNNY_MOVIE_EMBED = 'https://player.mediadelivery.net/embed/686041/295707ee-1cd3-4e2a-9a3c-6b60380f7372?autoplay=true&loop=true&muted=true&preload=true&responsive=true';
+
+  function createBunnyEmbed() {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;padding-top:56.25%';
+    const iframe = document.createElement('iframe');
+    iframe.src = BUNNY_MOVIE_EMBED;
+    iframe.loading = 'lazy';
+    iframe.style.cssText = 'border:0;position:absolute;top:0;height:100%;width:100%';
+    iframe.setAttribute('allow', 'accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;fullscreen;');
+    iframe.allowFullscreen = true;
+    wrap.appendChild(iframe);
+    return wrap;
+  }
 
   /* ════════════════════════════════════════════════════════
      LIGHTBOX
@@ -1040,16 +1055,9 @@
       tile.dataset.cat = cat.title;
 
       let coverEl;
-      if (cat.video) {
+      if (cat.embed) {
         tile.classList.add('wk-tile--full');
-        coverEl = document.createElement('video');
-        coverEl.src = cat.video;
-        coverEl.autoplay = true;
-        coverEl.muted = true;
-        coverEl.loop = true;
-        coverEl.playsInline = true;
-        coverEl.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
-        tile.style.aspectRatio = '16/9';
+        coverEl = createBunnyEmbed();
       } else {
         coverEl = document.createElement('img');
         coverEl.src = cat.imgs[0]; coverEl.alt = ''; coverEl.loading = 'lazy';
@@ -1066,7 +1074,7 @@
         `<span class="wk-tile-ttl">${cat.title}</span>` +
         `<div class="wk-tile-sub">` +
           `<p class="wk-tile-jp">${cat.jp}</p>` +
-          (cat.video ? '' : `<p class="wk-tile-n">${String(cat.imgs.length).padStart(2,'0')} photos</p>`) +
+          (cat.embed ? '' : `<p class="wk-tile-n">${String(cat.imgs.length).padStart(2,'0')} photos</p>`) +
         `</div>`;
 
       tile.appendChild(coverEl);
