@@ -8,3 +8,6 @@ TAKAHASHI LAB インスタ投稿用/
 
 node_modules/
 .env
+assets/web/movie/
+*.mp4
+*.mov
