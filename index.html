@@ -802,13 +802,13 @@
     { title:'MOVIE',            jp:'ムービー',             embed:true, imgs:[] },
   ];
 
-  const BUNNY_MOVIE_EMBED = 'https://player.mediadelivery.net/embed/686041/295707ee-1cd3-4e2a-9a3c-6b60380f7372?autoplay=true&loop=true&muted=true&preload=true&responsive=true';
+  const MOVIE_EMBED = 'https://www.youtube.com/embed/mFYFdzpqGbU?autoplay=1&mute=1&loop=1&playlist=mFYFdzpqGbU&controls=0&modestbranding=1&playsinline=1&rel=0';
 
-  function createBunnyEmbed() {
+  function createMovieEmbed() {
     const wrap = document.createElement('div');
     wrap.style.cssText = 'position:relative;padding-top:56.25%';
     const iframe = document.createElement('iframe');
-    iframe.src = BUNNY_MOVIE_EMBED;
+    iframe.src = MOVIE_EMBED;
     iframe.loading = 'lazy';
     iframe.style.cssText = 'border:0;position:absolute;top:0;height:100%;width:100%';
     iframe.setAttribute('allow', 'accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;fullscreen;');
@@ -1057,7 +1057,7 @@
       let coverEl;
       if (cat.embed) {
         tile.classList.add('wk-tile--full');
-        coverEl = createBunnyEmbed();
+        coverEl = createMovieEmbed();
       } else {
         coverEl = document.createElement('img');
         coverEl.src = cat.imgs[0]; coverEl.alt = ''; coverEl.loading = 'lazy';
